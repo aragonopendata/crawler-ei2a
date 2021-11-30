@@ -1,0 +1,21 @@
+version: '3.3'
+
+services:
+  
+  opendata-crawler:
+    container_name: opendata-crawler
+    build:
+      context: ./
+      dockerfile: ./src/main/docker/Dockerfile
+      #    extra_hosts:
+      # -  argon-docker.itainnova.es:193.144.231.29       
+    image: opendata-crawler:1.0.0
+    restart: always
+    environment:
+      TZ: Europe/Madrid
+      LOGLEVEL: DEBUG
+    logging:
+      driver: journald
+      options:
+        tag: "{{.ImageName}}/{{.Name}}"
+   
