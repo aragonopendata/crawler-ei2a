@@ -1,1 +1,0 @@
-para UTF-8 correcto debo guardar los ficheros.asp como "UTF-8 BOM" desde Sublime Text 3
