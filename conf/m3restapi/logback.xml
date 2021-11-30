@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--shutdownHook is not used on log4j-core:2.11.2. Configuration used is a default one -->
+<Configuration shutdownHook="true">
+    <Appenders>
+        <Console name="stdout">
+            <PatternLayout pattern="=%-05p|%d{d/M;HH:mm:ss}|%t.%C{1}|%L|>%.-153600m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="ERROR" additivity="false">
+            <AppenderRef ref="stdout"/>
+        </Root>
+    </Loggers>
+</Configuration>
+

@@ -1,0 +1,200 @@
+<html>
+    <header>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <style>
+            .loading {
+              height: 4px;
+              width: 100%;
+              position: fixed;
+              top: 0;
+              overflow: hidden;
+              background-color: #ddd;
+              z-index: 9999;
+              display: none;
+            }
+               .loading.show{
+                   display:block;
+               }
+               .loading:before{
+                 display: block;
+                 position: absolute;
+                 content: "";
+                 left: -200px;
+                 width: 200px;
+                 height: 4px;
+                 background-color: #2980b9;
+                 animation: loading 2s linear infinite;
+               }
+
+               @keyframes loading {
+                   from {left: -200px; width: 30%;}
+                   50% {width: 30%;}
+                   70% {width: 70%;}
+                   80% { left: 50%;}
+                   95% {left: 120%;}
+                   to {left: 100%;}
+               }
+        </style>
+        <style>
+            .aragob_header_wrapper {
+                position: absolute; /*fixed;*/
+                top: 0;
+                /* z-index: 9999; */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                width: 100%;
+                background-color: #fff;
+            }
+                .aragob_header {
+                    max-width: 960px;
+                    background: transparent url(../img/fondo_aragob.png) no-repeat top right;
+                }
+                .aragob_header::before {
+                    content: "";
+                    display: block;
+                    background: transparent url(../img/logo_aragob_40.png) no-repeat right center;
+                    height: 80px;
+                    width: calc(100vw - 80px);
+                }
+            body {
+                margin-top: 80px;
+            }
+
+        </style>
+        <style>
+            .sidebar{
+                position:absolute;
+                top: 2em;
+                /* border:1px solid red; */
+                z-index:1;
+                height: calc(100% - 4em);
+
+                display: flex;
+                flex-direction: column;
+            }
+            .flex-fill{
+                flex-grow: 1;
+                overflow-y: auto;
+                overflow-x: hidden;
+                margin-bottom: 1em;
+
+                /* transparente a eventos */
+            }
+            .transparent-to-events{
+                pointer-events: none !important;
+            }
+                .transparent-to-events > *{
+                    pointer-events: auto;
+                }
+
+            .popbar{
+                position: absolute;
+                max-height: 100%;
+                z-index: 1;
+                overflow-y: auto;
+                overflow-x: hidden;
+                background-color: rgba(255,255,255,0.85);
+                box-shadow: -10px 10px 15px -10px rgba(0,0,0,0.75);
+                padding: 1em;
+
+                width: 500px;
+                right: 0;
+                transition: right 0.5s;
+            }
+                .width0{
+                    right: -515px; /* width + box-shadow */
+                }
+            .btn_popbar{
+                position: absolute;
+                top: 1em;
+                right: 1em;
+                z-index: 2;
+            }
+        	.question {
+        		/* box-shadow: 4px 4px 4px rgba(0,0,0,.3); */
+                box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
+                /* margin-bottom: 1em; */
+        	}
+
+        	#graph-container {
+        		height: calc(100vh - 163.5938px);
+                /* height: 100vh; */
+                /* position: absolute;
+                left: 0; */
+        	}
+            .ellipsis{
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+                li.ellipsis{
+                    list-style-position:inside;
+                }
+            .answer {
+                overflow-y:hidden;
+                height: 100%;
+            }
+                .answer .list-group{
+                    overflow-y: auto;
+                    max-height:0%;
+                    transition: 'max-height' 0.5s;
+                }
+                    .sidebar:hover .answer .list-group,
+                    .question:focus + .answer .list-group{
+                        max-height: 100%;
+                    }
+                    /* .answer .list-group-item{
+                        background-color: rgba(255,255,255,.85);
+                    } */
+                .answer ul{
+                    padding-left: .5em;
+                }
+                .answer a{
+                    cursor: pointer;
+                }
+            .btn-default:not([disabled]) {
+                background-color: #c9e0e8; /*rgba(94,162,186,.3);*/
+                border-color: #5ea2ba;
+                color: #2f515d;
+            }
+        </style>
+    </header>
+    <body>
+        <div class="loading"></div>
+        <div class="aragob_header_wrapper">
+            <div class="aragob_header"></div>
+        </div>
+        <div style="height:calc(50px + 2vw);padding:.5em 1em;">
+            <img style="height:100%" class="img-responsive pull-right" src="../img/logo_feder.png">
+            <img style="height:100%" class="img-responsive " src="../img/logo_aragonopendata.png">
+        </div>
+        <div class="container-fluid">
+            <div class="row" style="position:relative;overflow: hidden">
+                <div class="col-md-4 sidebar transparent-to-events">
+                    <div id="question"></div>
+                    <div id="answer"></div>
+                    <div id="alertMaximumNodes"></div>
+                    <div id="nodesSlider"></div>
+                </div>
+                <button class="btn btn-default btn_popbar"><i class="fa fa-bars"></i></button>
+                <div class="popbar">
+                    <div id="info"></div>
+                    <div id="solrInfo"></div>
+                </div>
+                <div id="graph-container" style="background-color:rgba(94,162,186,.3)"></div>
+            </div>
+        </div>
+        <script src="//cdn.polyfill.io/v2/polyfill.min.js?features=default,Array.prototype.includes,Element.prototype.dataset,Object.entries,Object.values,fetch,String.prototype.padStart"></script>
+
+        <script src="https://unpkg.com/sigma@1.2.1/build/sigma.min.js"></script>
+        <script src="https://unpkg.com/sigma@1.2.1/build/plugins/sigma.plugins.dragNodes.min.js"></script>
+        <script src="https://unpkg.com/sigma@1.2.1/build/plugins/sigma.plugins.animate.min.js"></script>
+        <script src="https://unpkg.com/sigma@1.2.1/build/plugins/sigma.renderers.customShapes.min.js"></script>
+
+        <script src="../vendor/jquery/v2.2.4/jquery.min.js"></script>
+        <script src="../vendor/bootstrap/v3.3.7/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+        <script src="main.js"></script>
+    </body>
+</html>

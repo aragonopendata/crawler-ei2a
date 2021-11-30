@@ -1,0 +1,1011 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://opendata.aragon.es/def/ei2a/categorization#"
+     xml:base="http://opendata.aragon.es/def/ei2a/categorization"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://opendata.aragon.es/def/ei2a/categorization">
+        <rdfs:comment xml:lang="en">Ontology that contains the categorization to be used for the capture of information of webs, subdomains or portals of the Government of Aragon</rdfs:comment>
+        <rdfs:comment xml:lang="es">Ontología que contiene la categorización a utilizar para la captura de información de webs, subdominios o portales del Gobierno de Aragón</rdfs:comment>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Agriculture -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Agriculture">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="es">Agricultura</rdfs:label>
+        <rdfs:label xml:lang="en">Agriculture</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#AssociationsAndOrganizations -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#AssociationsAndOrganizations">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="es">Asociaciones y organizaciones</rdfs:label>
+        <rdfs:label xml:lang="en">Associations and Organizations</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#AssociationsFoundationsAndProfessionalColleges -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#AssociationsFoundationsAndProfessionalColleges">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#BusinessTradeAndAssociations"/>
+        <rdfs:label xml:lang="es">Asociaciones, fundaciones y colegios profesionales</rdfs:label>
+        <rdfs:label xml:lang="en">Associations, foundations and professional associations</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Business -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Business">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#BusinessTradeAndAssociations"/>
+        <rdfs:label>Business</rdfs:label>
+        <rdfs:label xml:lang="es">Empresa</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#BusinessAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#BusinessAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#BusinessTradeAndAssociations"/>
+        <rdfs:label xml:lang="en">Aids and subsidies to companies</rdfs:label>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones a empresas</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#BusinessTradeAndAssociations -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#BusinessTradeAndAssociations">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Colegios profesionales, fundaciones, creación de empresas, internacionalización, ferias, artesania,juego...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Professional colleges, foundations, creation of companies, internationalization, fairs, crafts, game ...</rdfs:comment>
+        <rdfs:label xml:lang="en">Company, trade and associations</rdfs:label>
+        <rdfs:label xml:lang="es">Empresa, comercio y asociaciones</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#CarnetsAndCertificates -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CarnetsAndCertificates">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#InfrastructureTransportAndRoads"/>
+        <rdfs:label xml:lang="en">Carnets and certificates</rdfs:label>
+        <rdfs:label xml:lang="es">Carnets y certificados</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#ChildhoodAndYouth -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#ChildhoodAndYouth">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#SocialCareAndDependency"/>
+        <rdfs:label xml:lang="en">Children and youth</rdfs:label>
+        <rdfs:label xml:lang="es">Infancia y juventud</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#CitizenRightsAndServices -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CitizenRightsAndServices">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="en">Consumer information, indemnities, payments, fees and returns, valuation of furniture, legal assistance ...</rdfs:comment>
+        <rdfs:comment xml:lang="es">Información al consumidor, indemnizaciones, pagos, tasas y devoluciones, valoración de muebles, asistencía jurídica…</rdfs:comment>
+        <rdfs:label xml:lang="en">Citizen&apos;s rights and services</rdfs:label>
+        <rdfs:label xml:lang="es">Derechos y servicios del ciudadano</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#CitizenSecurityAndSafety -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CitizenSecurityAndSafety">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CitizenRightsAndServices"/>
+        <rdfs:label xml:lang="en">Citizen security and safety</rdfs:label>
+        <rdfs:label xml:lang="es">Protección y seguridad ciudadana</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#CollectiveInRuralAreas -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CollectiveInRuralAreas">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="es">Colectivos en el medio rural</rdfs:label>
+        <rdfs:label xml:lang="en">Collective in rural areas</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#CollectiveWork -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CollectiveWork">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAndWork"/>
+        <rdfs:label xml:lang="es">Colectivos de trabajo</rdfs:label>
+        <rdfs:label xml:lang="en">Collective work</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#ConsumerInformation -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#ConsumerInformation">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CitizenRightsAndServices"/>
+        <rdfs:label xml:lang="en">Consumer Information</rdfs:label>
+        <rdfs:label xml:lang="es">Información al consumidor</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Culture -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Culture">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism"/>
+        <rdfs:label xml:lang="es">Cultura</rdfs:label>
+        <rdfs:label xml:lang="en">Culture</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#CultureAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CultureAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism"/>
+        <rdfs:label xml:lang="en">Aids and subsidies in culture</rdfs:label>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones en cultura</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#CultureEmploymentAndTraining -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CultureEmploymentAndTraining">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism"/>
+        <rdfs:label xml:lang="es">Empleo y formación en cultura</rdfs:label>
+        <rdfs:label xml:lang="en">Employment and training in culture</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Información turística, museos y bibliotecas, fiestas y espectáculos, casas rurales, instalaciones deportivas, hosteleria...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Tourist information, museums and libraries, parties and shows, rural houses, sports facilities, hospitality ...</rdfs:comment>
+        <rdfs:label xml:lang="es">Cultura, ocio y turismo</rdfs:label>
+        <rdfs:label xml:lang="en">Culture, leisure and tourism</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#DefenseAndConservation -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#DefenseAndConservation">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Environment"/>
+        <rdfs:label xml:lang="es">Defensa y conservación</rdfs:label>
+        <rdfs:label xml:lang="en">Defense and conservation</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Dependency -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Dependency">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#SocialCareAndDependency"/>
+        <rdfs:label xml:lang="es">Dependencia</rdfs:label>
+        <rdfs:label xml:lang="en">Dependency</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#DisabilityAndEmployment -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#DisabilityAndEmployment">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAndWork"/>
+        <rdfs:label xml:lang="en">Disability and employment</rdfs:label>
+        <rdfs:label xml:lang="es">Discapacidad y empleo</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EducationAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EducationAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EducationResearchAndDevelopment"/>
+        <rdfs:label xml:lang="en">Aids and subsidies in education</rdfs:label>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones en educación</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EducationEmploymentAndTraining -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EducationEmploymentAndTraining">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EducationResearchAndDevelopment"/>
+        <rdfs:label xml:lang="es">Empleo y formación en educación</rdfs:label>
+        <rdfs:label xml:lang="en">Employment and training in education</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EducationResearchAndDevelopment -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EducationResearchAndDevelopment">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Empleo y formación en infantil, primaria, ESO, FP, Universidad, adultos, centros especiales  y privados, ayudas, becas...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Employment and training in children, primary, ESO, FP, University, adults, special and private centers, grants, scholarships ...</rdfs:comment>
+        <rdfs:label xml:lang="es">Educación, investigación y desarrollo</rdfs:label>
+        <rdfs:label xml:lang="en">Education, research and development</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#ElderlyPeople -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#ElderlyPeople">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#SocialCareAndDependency"/>
+        <rdfs:label xml:lang="en">Elder people</rdfs:label>
+        <rdfs:label xml:lang="es">Personas mayores</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Employment -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Employment">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAndWork"/>
+        <rdfs:label xml:lang="es">Empleo</rdfs:label>
+        <rdfs:label xml:lang="en">Employment</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EmploymentAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAndWork"/>
+        <rdfs:label xml:lang="en">Aids and subsidies for employment</rdfs:label>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones para emplearse</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EmploymentAndWork -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAndWork">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Programas de inserción, bolsas de empleo, trabajo en organismos públicos, autónomos, cooperativas, trabajos temporales, ...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Programs of insertion, employment exchanges, work in public agencies, self-employed, cooperatives, temporary jobs, ...</rdfs:comment>
+        <rdfs:label xml:lang="es">Empleo y trabajo</rdfs:label>
+        <rdfs:label xml:lang="en">Employment and work</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EmploymentCoursesAndTraining -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EmploymentCoursesAndTraining">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAndWork"/>
+        <rdfs:label xml:lang="en">Courses and training for employment</rdfs:label>
+        <rdfs:label xml:lang="es">Cursos y formación para emplearse</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Energy -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Energy">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#IndustrialAndEnergyActivities"/>
+        <rdfs:label xml:lang="en">Energy</rdfs:label>
+        <rdfs:label xml:lang="es">Energía</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EnergyAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EnergyAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#IndustrialAndEnergyActivities"/>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones en energía</rdfs:label>
+        <rdfs:label xml:lang="en">Energy subsidies and subsidies</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EnergyWasteManagement -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EnergyWasteManagement">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#IndustrialAndEnergyActivities"/>
+        <rdfs:label xml:lang="en">Energy waste management</rdfs:label>
+        <rdfs:label xml:lang="es">Gestión de residuos energéticos</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Environment -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Environment">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Gestión de residuos, energías renovables,  conservación del medio ambiente, montes, cotos de caza y pesca, especies autóctonas e invasoras...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Waste management, renewable energies, conservation of the environment, forests, hunting and fishing reserves, native and invasive species ...</rdfs:comment>
+        <rdfs:label xml:lang="en">Environment</rdfs:label>
+        <rdfs:label xml:lang="es">Medio ambiente</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EnvironmentAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EnvironmentAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Environment"/>
+        <rdfs:label xml:lang="en">Aids and subsidies in the environment</rdfs:label>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones en medio ambiente</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#EnvironmentAndItsActivity -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EnvironmentAndItsActivity">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Environment"/>
+        <rdfs:label xml:lang="en">Environment and its activity</rdfs:label>
+        <rdfs:label xml:lang="es">Medio ambiente y su actividad</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Feeding -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Feeding">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="es">Alimentación</rdfs:label>
+        <rdfs:label xml:lang="en">Feeding</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#FoodSafety -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#FoodSafety">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Health"/>
+        <rdfs:label xml:lang="en">Food safety</rdfs:label>
+        <rdfs:label xml:lang="es">Seguridad alimentaria</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#GamesAndShows -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#GamesAndShows">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism"/>
+        <rdfs:label xml:lang="en">Games and shows</rdfs:label>
+        <rdfs:label xml:lang="es">Juegos y espectáculos</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#GamingBusiness -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#GamingBusiness">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism"/>
+        <rdfs:label xml:lang="es">Empresas del juego</rdfs:label>
+        <rdfs:label xml:lang="en">Game companies</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization">
+        <rdfs:comment xml:lang="es">Categorización general de webs, subdominios o portales del Gobierno de Aragón</rdfs:comment>
+        <rdfs:comment xml:lang="en">General categorization of websites, subdomains or portals of the Government of Aragon</rdfs:comment>
+        <rdfs:label xml:lang="es">Categorización general</rdfs:label>
+        <rdfs:label xml:lang="en">General categorization</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Health -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Health">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Centros sanitarios, gestión de tarjeta sanitaria, asistencia médica, seguridad sanitaria y alimentaria, equipamiento médico...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Health centers, health card management, medical assistance, health and food safety, medical equipment ...</rdfs:comment>
+        <rdfs:label xml:lang="en">Health</rdfs:label>
+        <rdfs:label xml:lang="es">Salud</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#HealthAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HealthAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Health"/>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones en salud</rdfs:label>
+        <rdfs:label xml:lang="en">Health aids and subsidies</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#HealthEmploymentAndTraining -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HealthEmploymentAndTraining">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Health"/>
+        <rdfs:label xml:lang="es">Empleo y formación en salud</rdfs:label>
+        <rdfs:label xml:lang="en">Employment and training in health</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#HealthSafetyAndQuality -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HealthSafetyAndQuality">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Health"/>
+        <rdfs:label xml:lang="en">Health safety and quality</rdfs:label>
+        <rdfs:label xml:lang="es">Seguridad sanitaria y calidad</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Housing -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Housing">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Alquileres sociales, fianza y depósito de viviendas y locales, rehabilitación de edificios, valoraciones de inmmuebles, registro urbanístico...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Social rentals, deposit and deposit of housing and premises, rehabilitation of buildings, valuations of immobility, urban registry ...</rdfs:comment>
+        <rdfs:label xml:lang="en">Living place</rdfs:label>
+        <rdfs:label xml:lang="es">Vivienda</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#HousingAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HousingAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Housing"/>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones en viviendas</rdfs:label>
+        <rdfs:label xml:lang="en">Housing aids and subsidies</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#HousingAndBuilding -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HousingAndBuilding">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Housing"/>
+        <rdfs:label xml:lang="en">Housing and building</rdfs:label>
+        <rdfs:label xml:lang="es">Vivienda y edificación</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#IndustrialActivities -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#IndustrialActivities">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#IndustrialAndEnergyActivities"/>
+        <rdfs:label xml:lang="es">Actividades industriales</rdfs:label>
+        <rdfs:label xml:lang="en">Industrial activities</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#IndustrialAndEnergyActivities -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#IndustrialAndEnergyActivities">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Eficiencia energética en hogar, instalaciones industriales,  seguridad industrial, mineria, resposabilidad social...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Energy efficiency in home, industrial facilities, industrial safety, mining, social responsibility ...</rdfs:comment>
+        <rdfs:label xml:lang="es">Actividades industriales y energía</rdfs:label>
+        <rdfs:label xml:lang="en">Industrial activities and energy</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#InfrastructureAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#InfrastructureAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#InfrastructureTransportAndRoads"/>
+        <rdfs:label xml:lang="en">Aids and subsidies in infrastructure</rdfs:label>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones en infraestructuras</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#InfrastructureTransportAndRoads -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#InfrastructureTransportAndRoads">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Compraventa vehículos, carnets, renovaciones, transporte, inspecciones técnicas, señalización...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Purchase and sale of vehicles, licenses, renewals, transport, technical inspections, signage ...</rdfs:comment>
+        <rdfs:label xml:lang="es">Infraestructuras, transportes y carreteras</rdfs:label>
+        <rdfs:label xml:lang="en">Infrastructures, transport and roads</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#LawAndJustice -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#LawAndJustice">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CitizenRightsAndServices"/>
+        <rdfs:label xml:lang="es">Derecho y justicia</rdfs:label>
+        <rdfs:label xml:lang="en">Law and justice</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Livestock -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Livestock">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="en">Cattle raising</rdfs:label>
+        <rdfs:label xml:lang="es">Ganadería</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Mining -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Mining">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#IndustrialAndEnergyActivities"/>
+        <rdfs:label xml:lang="es">Minería</rdfs:label>
+        <rdfs:label xml:lang="en">Mining</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#OthersHealth -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#OthersHealth">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Health"/>
+        <rdfs:label xml:lang="en">Other health</rdfs:label>
+        <rdfs:label xml:lang="es">Otros salud</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#OthersRuralAreas -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#OthersRuralAreas">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="en">Others rural environment</rdfs:label>
+        <rdfs:label xml:lang="es">Otros medio rural</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#PesticidesAndInvasiveSpecies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#PesticidesAndInvasiveSpecies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="en">Pesticides and invasive species</rdfs:label>
+        <rdfs:label xml:lang="es">Plaguicidas y especies invasoras</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#PrivateDomain -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#PrivateDomain">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Environment"/>
+        <rdfs:label xml:lang="es">Dominio privado</rdfs:label>
+        <rdfs:label xml:lang="en">Private domain</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#ResearchDevelopmentAndInnovation -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#ResearchDevelopmentAndInnovation">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EducationResearchAndDevelopment"/>
+        <rdfs:label xml:lang="es">Investigación, desarrollo e innovación</rdfs:label>
+        <rdfs:label xml:lang="en">Research, development and innovation</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#RightsAndPayments -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RightsAndPayments">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="es">Derechos y pagos</rdfs:label>
+        <rdfs:label xml:lang="en">Rights and payments</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Roads -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Roads">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#InfrastructureTransportAndRoads"/>
+        <rdfs:label xml:lang="es">Carreteras</rdfs:label>
+        <rdfs:label xml:lang="en">Roads</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#RuralAreasAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RuralAreasAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="en">Aids and subsidies in rural areas</rdfs:label>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones en el medio rural</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#RuralAreasEmploymentAndTraining -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RuralAreasEmploymentAndTraining">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="es">Empleo y formación en medio rural</rdfs:label>
+        <rdfs:label xml:lang="en">Employment and training in rural areas</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#RuralDevelopmentAndBiodiversity -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RuralDevelopmentAndBiodiversity">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="es">Desarrollo rural y biodiversidad</rdfs:label>
+        <rdfs:label xml:lang="en">Rural development and biodiversity</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="en">Crops, machinery, farms, rural development, phytosanitary products, PAC support, hunting and fishing ...</rdfs:comment>
+        <rdfs:comment xml:lang="es">Cultivos, maquinaria, explotaciones, desarrollo rural, productos fitosanitarios, ayudas PAC, cotos de caza y pesca...</rdfs:comment>
+        <rdfs:label xml:lang="es">Medio rural, agricultura y ganadería</rdfs:label>
+        <rdfs:label xml:lang="en">Rural environment, agriculture and livestock</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#SecurityTransportAndTrade -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SecurityTransportAndTrade">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+        <rdfs:label xml:lang="en">Security, transport and trade</rdfs:label>
+        <rdfs:label xml:lang="es">Seguridad, transporte y comercio</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#SocialAidsAndSubsidies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SocialAidsAndSubsidies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#SocialCareAndDependency"/>
+        <rdfs:label xml:lang="es">Ayudas y subvenciones sociales</rdfs:label>
+        <rdfs:label xml:lang="en">Social aids and subsidies</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#SocialCareAndDependency -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SocialCareAndDependency">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="es">Pensiones y jubilación, adopciones y acogidas, inserción social, violencia de genero, atención temprana...</rdfs:comment>
+        <rdfs:comment xml:lang="en">Pensions and retirement, adoptions and foster care, social insertion, gender violence, early care ...</rdfs:comment>
+        <rdfs:label xml:lang="es">Atención social y dependencia</rdfs:label>
+        <rdfs:label xml:lang="en">Social care and dependency</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#SocialCenters -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SocialCenters">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#SocialCareAndDependency"/>
+        <rdfs:label xml:lang="es">Centros sociales</rdfs:label>
+        <rdfs:label xml:lang="en">Social centers</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Sports -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Sports">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism"/>
+        <rdfs:label xml:lang="es">Deportes</rdfs:label>
+        <rdfs:label xml:lang="en">Sports</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#SystemsAndEducationalCenters -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SystemsAndEducationalCenters">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EducationResearchAndDevelopment"/>
+        <rdfs:label xml:lang="es">Sistemas y centros educativos</rdfs:label>
+        <rdfs:label xml:lang="en">Systems and educational centers</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#TaxesPaymentsAndFees -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TaxesPaymentsAndFees">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CitizenRightsAndServices"/>
+        <rdfs:label xml:lang="es">Impuestos, pagos y tasas</rdfs:label>
+        <rdfs:label xml:lang="en">Taxes, payments and fees</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#TerritoryAndTransport -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TerritoryAndTransport">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#InfrastructureTransportAndRoads"/>
+        <rdfs:label xml:lang="es">Territorio y transportes</rdfs:label>
+        <rdfs:label xml:lang="en">Territory and transport</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#TouristCompanies -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TouristCompanies">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism"/>
+        <rdfs:label xml:lang="es">Empresas turísticas</rdfs:label>
+        <rdfs:label xml:lang="en">Tourist companies</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#TouristServices -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TouristServices">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism"/>
+        <rdfs:label xml:lang="es">Servicios turísticos</rdfs:label>
+        <rdfs:label xml:lang="en">Tourist services</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#TownPlanning -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TownPlanning">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Housing"/>
+        <rdfs:label xml:lang="en">Town planning</rdfs:label>
+        <rdfs:label xml:lang="es">Urbanismo</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#TradeFairsAndCrafts -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TradeFairsAndCrafts">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#BusinessTradeAndAssociations"/>
+        <rdfs:label xml:lang="es">Comercio, ferias y artesanía</rdfs:label>
+        <rdfs:label xml:lang="en">Trade, fairs and crafts</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#Unknown -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Unknown">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#GeneralCategorization"/>
+        <rdfs:comment xml:lang="en">Category to collect webs, subdomains or portals that do not belong to any of the other categories in view of being able to expand in a future the general categorization</rdfs:comment>
+        <rdfs:comment xml:lang="es">Categoría para recoger webs, subdominios o portales que no pertenecen a ninguna de las demás categorías en vista de poder ampliar en un futuro la categorización general</rdfs:comment>
+        <rdfs:label xml:lang="es">Desconocida</rdfs:label>
+        <rdfs:label xml:lang="en">Unknown</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#WasteManagement -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#WasteManagement">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Environment"/>
+        <rdfs:label xml:lang="es">Gestión de residuos</rdfs:label>
+        <rdfs:label xml:lang="en">Waste management</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#WaterAndHealth -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#WaterAndHealth">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#Health"/>
+        <rdfs:label xml:lang="es">Agua y salud</rdfs:label>
+        <rdfs:label xml:lang="en">Water and health</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://opendata.aragon.es/def/ei2a/categorization#WorkInPublicOrganisms -->
+
+    <owl:Class rdf:about="http://opendata.aragon.es/def/ei2a/categorization#WorkInPublicOrganisms">
+        <rdfs:subClassOf rdf:resource="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAndWork"/>
+        <rdfs:label xml:lang="es">Trabajo en organismos públicos</rdfs:label>
+        <rdfs:label xml:lang="en">Work in public organisms</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Agriculture"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#AssociationsAndOrganizations"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CollectiveInRuralAreas"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Feeding"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Livestock"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#OthersRuralAreas"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#PesticidesAndInvasiveSpecies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RightsAndPayments"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RuralAreasAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RuralAreasEmploymentAndTraining"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RuralDevelopmentAndBiodiversity"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SecurityTransportAndTrade"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#AssociationsFoundationsAndProfessionalColleges"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Business"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#BusinessAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TradeFairsAndCrafts"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#BusinessTradeAndAssociations"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CitizenRightsAndServices"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CultureLeisureAndTourism"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EducationResearchAndDevelopment"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAndWork"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Environment"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Health"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Housing"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#IndustrialAndEnergyActivities"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#InfrastructureTransportAndRoads"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#RuralEnvironmentAgricultureAndLivestock"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SocialCareAndDependency"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Unknown"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CarnetsAndCertificates"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#InfrastructureAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Roads"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TerritoryAndTransport"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#ChildhoodAndYouth"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Dependency"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#ElderlyPeople"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SocialAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SocialCenters"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CitizenSecurityAndSafety"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#ConsumerInformation"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#LawAndJustice"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TaxesPaymentsAndFees"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CollectiveWork"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#DisabilityAndEmployment"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Employment"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EmploymentAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EmploymentCoursesAndTraining"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#WorkInPublicOrganisms"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Culture"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CultureAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#CultureEmploymentAndTraining"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#GamesAndShows"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#GamingBusiness"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Sports"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TouristCompanies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TouristServices"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#DefenseAndConservation"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EnvironmentAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EnvironmentAndItsActivity"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#PrivateDomain"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#WasteManagement"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EducationAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EducationEmploymentAndTraining"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#ResearchDevelopmentAndInnovation"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#SystemsAndEducationalCenters"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Energy"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EnergyAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#EnergyWasteManagement"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#IndustrialActivities"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#Mining"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#FoodSafety"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HealthAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HealthEmploymentAndTraining"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HealthSafetyAndQuality"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#OthersHealth"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#WaterAndHealth"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HousingAidsAndSubsidies"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#HousingAndBuilding"/>
+            <rdf:Description rdf:about="http://opendata.aragon.es/def/ei2a/categorization#TownPlanning"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.2.6.20160910-2108) https://github.com/owlcs/owlapi -->
+

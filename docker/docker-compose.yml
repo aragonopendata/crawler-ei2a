@@ -1,0 +1,360 @@
+version: '3.7'
+services:  
+    argon-webapp:
+        container_name: argon-webapp
+        image: argon-docker.itainnova.es/v2/argon/argonwebapp:latest
+        restart: always
+        networks:
+          - argon-net
+        env_file:
+          - ./argon.env
+        volumes:      
+          - "/argon/logs/argonWebApp/:/logs"   
+        environment:
+          - TZ=Europe/Madrid   
+          - "JAVA_OPTS=-Dfile.encoding=UTF-8 -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=70 -XX:CompressedClassSpaceSize=64m -XX:ReservedCodeCacheSize=64m -XX:MaxMetaspaceSize=256m -Xms256m -Xmx1024m" 
+
+
+    argon-containermanager:
+        container_name: argon-containermanager
+        image: argon-docker.itainnova.es/v2/argon/containermanager:latest
+        ports:
+          - "8891:9999"
+        restart: always
+        networks:
+          - argon-net
+        env_file:
+          - ./argon.env
+        volumes:
+          - "/argon/conf/containermanager:/data"
+          - "/argon/logs/:/logs" 
+          - "/argon/notebooks/work:/home/jovyan/work"      
+        environment:
+          - TZ=Europe/Madrid   
+          - "JAVA_OPTS=-Dfile.encoding=UTF-8 -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=70 -XX:CompressedClassSpaceSize=64m -XX:ReservedCodeCacheSize=64m -XX:MaxMetaspaceSize=256m -Xms128m -Xmx256m" 
+
+       
+    argon-jupyterhub:
+        container_name: argon-jupyterhub
+        image: argon-docker.itainnova.es/v2/argon/jupyternotebook:latest
+        restart: always
+        networks:
+          - argon-net
+        env_file:
+          - ./argon.env
+        volumes:
+          - "/argon/envs:/opt/conda/envs"
+          - "/argon/notebooks/work:/home/jovyan/work"      
+          - "/argon/notebooks/work:/work"   
+          - "/argon/data/solr:/home/jovyan/work/solr"
+          - "/argon/data/solr:/solr"
+          - "/argon/notebooks/work/data:/data"
+          - "/argon/conf:/conf"            
+        environment:
+          - TZ=Europe/Madrid   
+          - JAVA_OPTS="-Dfile.encoding=UTF-8 -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=70 -XX:CompressedClassSpaceSize=64m -XX:ReservedCodeCacheSize=64m -XX:MaxMetaspaceSize=256m -Xms128m -Xmx256m" 
+
+        command: "start-notebook.sh  --NotebookApp.token='' --notebook-dir=/home/jovyan/work"     
+      
+    jupyternotebook-gateway:
+        container_name: ""
+        image: argon-docker.itainnova.es/v2/argon/jupyternotebook_gateway:latest
+        networks:
+          - argon-net
+        
+      
+  
+ 
+          
+    argon-m3restapi:
+        container_name: argon-m3restapi
+        image: argon-docker.itainnova.es/v2/argon/m3restapi:latest
+        restart: always
+        networks:
+          - argon-net
+        volumes:
+          - "/argon/notebooks/work/data:/data"
+          - "/argon/conf/m3restapi/:/app/conf/"
+          - "/argon/conf/m3restapi/m2/:/m2/"              
+        environment:
+          - "TZ=Europe/Madrid"
+          - "JAVA_OPTS="
+        deploy:
+          restart_policy:
+            condition: on-failure
+
+          
+          
+      
+    argon-m3editorclassic:
+        container_name: argon-m3editorclassic
+        image: argon-docker.itainnova.es/v2/argon/m3editorclassic:latest
+        restart: always
+        networks:
+          - argon-net   
+        volumes:    
+          - "/argon/conf/m3editorclassic/:/app/conf/" 
+        environment:
+          - "TZ=Europe/Madrid"
+          - "JAVA_OPTS="          
+
+    argon-m3editor:
+        container_name: argon-m3editor
+        image: argon-docker.itainnova.es/v2/argon/m3editor:latest
+        restart: always
+        networks:
+          - argon-net   
+        command: "npm start " 
+        
+        
+        
+  
+  
+  
+    argon-solr:
+        container_name: argon-solr
+        image: argon-docker.itainnova.es/v2/argon/solr:latest
+        ports:
+          - "8981:8983"
+        restart: always
+        environment:
+          - TZ=Europe/Madrid       
+        volumes:
+
+          - "/argon/logs/solr:/usr/local/solr/server/logs"
+          - "/argon/data/solr:/usr/local/solr/server/solr"
+        networks:
+          - argon-net
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://argon-solr:8983/solr"]
+          interval: 1m30s
+          timeout: 10s
+          retries: 3
+          start_period: 4s  
+    
+    
+    
+    argon-mongo:
+        image: mongo:3.7
+        restart: always
+        container_name: argon-mongo
+        volumes:
+           - "/argon/data/mongo/:/data/db/"
+           - "/argon/dump:/tmp/dump" 
+        healthcheck:
+          test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+          interval: 1m30s
+          timeout: 10s
+          retries: 3
+          start_period: 40s
+        logging:
+          options:
+            max-size: "10m"
+            max-file: "3"
+        command: "--wiredTigerCacheSizeGB 2.0"
+        networks:
+          - argon-net
+
+
+
+
+
+    argon-mongoviewer:
+        container_name: argon-mongoviewer
+        image: argon-docker.itainnova.es/v2/argon/mongo-express:latest
+        links:
+          - argon-mongo:mongo
+        ports:
+          - "8883:8081"
+        restart: always
+        networks:
+          - argon-net
+
+   
+    argon-virtuoso:
+        image:  argon-docker.itainnova.es/v2/argon/virtuoso:latest
+        container_name: argon-virtuoso
+        volumes:
+           - "/argon/data/virtuoso:/data"
+        restart: always
+        networks:
+          - argon-net
+
+  
+  
+    kong-migrations:
+        image: kong:latest
+        command: kong migrations bootstrap
+        depends_on:
+          - argon-kong_postressdb
+        links:
+          - argon-kong_postressdb:kong-database
+        environment:
+          KONG_DATABASE: postgres
+          KONG_PG_DATABASE: kong
+          KONG_PG_HOST: kong-database
+          KONG_PG_USER: kong
+          KONG_PG_PASSWORD: WhatAWornderfulWorld
+        networks:
+          - kong-net
+        restart: on-failure
+        deploy:
+          restart_policy:
+            condition: on-failure
+
+    kong-migrations-up:
+        image: kong:latest
+        command: kong migrations up && kong migrations finish
+        depends_on:
+            - argon-kong_postressdb
+        environment:
+            KONG_DATABASE: postgres
+            KONG_PG_DATABASE: kong
+            KONG_PG_HOST: kong-database
+            KONG_PG_USER: kong
+            KONG_PG_PASSWORD: WhatAWornderfulWorld 
+        links:
+            - argon-kong_postressdb:kong-database  
+        networks:
+            - kong-net
+        restart: on-failure
+        deploy:
+            restart_policy:
+              condition: on-failure    
+
+
+
+    
+    argon-kong_postressdb:
+        image: postgres:9.5
+        container_name: argon-kong_postressdb
+        ports:
+          - "5432:5432"
+        environment:
+          POSTGRES_USER: kong
+          POSTGRES_DB: kong
+          POSTGRES_PASSWORD: WhatAWornderfulWorld       
+        healthcheck:
+          test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
+          interval: 30s
+          timeout: 30s
+          retries: 3
+        restart: on-failure
+        deploy:
+          restart_policy:
+            condition: on-failure
+        stdin_open: true
+        tty: true
+        networks:
+          - kong-net
+        volumes:
+          - kong_data:/var/lib/postgresql/data  
+       
+    argon-kong:
+        image: kong:latest
+        container_name: argon-kong
+        user: kong
+        links:
+          - argon-kong_postressdb:kong-database
+        ports:
+          - 8889:8000
+          - 8894:8443
+          - 127.0.0.1:8888:8001
+          - 127.0.0.1:8899:8444
+        volumes:
+          - "/argon/conf/kong/:/conf/"   
+        environment:      
+          KONG_DATABASE: postgres
+          KONG_PG_HOST: kong-database
+          KONG_PG_DATABASE: kong
+          KONG_PG_USER: kong
+          KONG_PG_PASSWORD: WhatAWornderfulWorld
+          KONG_CASSANDRA_CONTACT_POINTS: kong-database
+          KONG_PROXY_ACCESS_LOG: /dev/stdout
+          KONG_ADMIN_ACCESS_LOG: /dev/stdout
+          KONG_PROXY_ERROR_LOG: /dev/stderr
+          KONG_ADMIN_ERROR_LOG: /dev/stderr
+          KONG_ADMIN_LISTEN: 0.0.0.0:8001
+          KONG_ADMIN_LISTEN_SSL: 0.0.0.0:8444
+        depends_on:
+          - argon-kong_postressdb
+        networks:
+          - argon-net
+          - kong-net
+        healthcheck:
+          test: ["CMD", "kong", "health"]
+          interval: 10s
+          timeout: 10s
+          retries: 10
+        restart: on-failure
+        deploy:
+          restart_policy:
+            condition: on-failure        
+ 
+ 
+    argon-jetty:
+        image: argon-docker.itainnova.es/v2/argon/jetty:latest
+        restart: always
+        container_name: argon-jetty       
+        volumes:
+          -  "/argon/war/:/var/lib/jetty/webapps"
+          -  "/argon/logs/moriarty:/logs/" 
+          -  "/argon/logs/moriarty:/var/lib/jetty/logs/"
+          -  "/argon/notebooks/work/data/:/data/"
+          -  "/argon/sftp:/sftp"          
+        environment: 
+          - TZ=Europe/Madrid               
+          - "JAVA_OPTS=-Dfile.encoding=UTF-8 -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=70 -XX:CompressedClassSpaceSize=64m -XX:ReservedCodeCacheSize=64m -XX:MaxMetaspaceSize=256m -Xms128m -Xmx2048m"
+        networks:
+          - argon-net   
+ 
+
+networks:
+    frontend:
+        ipam:
+          driver: default
+          config:
+            - subnet: "10.6.0.0/16"
+    kong-net:
+        external: false
+    
+    argon-net:
+        external: true
+
+
+
+volumes:
+        
+    kong_data: {}
+    
+    argon-jupyter_notebooks: 
+        external:
+            name: argon-jupyter_notebooks
+    argon-jupyter_notebooks_data:
+        external:
+            name: argon-jupyter_notebooks_data
+    argon-jupyter_envs:
+        external:
+            name: argon-jupyter_envs   
+    argon-logs:
+        external:
+            name: argon-logs 
+    argon-logs_gateways:
+        external:
+            name: argon-logs_gateways   
+    argon-data:
+        external:
+            name: argon-data   
+    argon-dump:
+        external:
+            name: argon-dump   
+    argon-wars:
+        external:
+            name: argon-wars       
+    argon-conf:
+        external:
+            name: argon-conf       
+
+
+   
+

@@ -1,0 +1,18 @@
+<!doctype html><html lang="es" class="debug-off"><meta charset="utf-8"><meta http-equiv="x-ua-compatible" content="ie=edge"><title>Aragón Open Data Buscador</title><meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no"><link rel="manifest" href="site.webmanifest"><link rel="apple-touch-icon" href="icon.png"><link rel="icon" href="favicon.ico"><link rel="dns-prefecth" href="//cdnjs.cloudflare.com"><script src="//cdn.polyfill.io/v2/polyfill.min.js?features=default,Array.prototype.includes,Element.prototype.dataset,Object.entries,Object.values,fetch,String.prototype.padStart"></script><link rel="stylesheet" href="css/ita.dgaconvenios.min.css"><div class="loading"></div><div class="aragob_header_wrapper"><div class="aragob_header"></div></div><div class="logos"><img class="img-responsive pull-right" src="img/logo_feder.png"> <img class="img-responsive" src="img/logo_aragonopendata.png"></div><div class="vmp-container-messages"></div><main id="ita-target-layout" class="container-fluid"><div class="row"><div class="col-md-3"><div class="form-group" style="margin:1em 0;padding:1em;background-color:rgba(94,162,186,.3)"><label for="ontology_source">Selecciona fuentes de la ontología:</label> <select class="form-control" id="ontology_source"><option value="1" title="http://transparencia.aragon.es&#013;https://www.saludinforma.es/&#013;http://www.educaragon.org/&#013;https://www.turismodearagon.com/&#013;http://acpua.aragon.es/">otros dominios<option value="2" title="http://*.aragon.es">dominio *.aragon.es</select><p class="help-block"></div><div class="vmp-container-filteredby"></div><div class="vmp-container-facets"></div></div><div class="col-md-9 vmp-container-documents"></div></div></main><footer class="clearfix" style="padding: 2em 1em;background-color: rgba(94, 162, 186, .3);height:calc(80px + 3vw);"><img alt="logo proyecto Feder Unión Europea construyendo Europa desde Aragón" class="img-responsive pull-right visible-xs-block" src="img/logo_feder.png"> <img style="height:55%;margin: 0 2em;" alt="logo Instituto Tecnológico de Aragón" src="img/logo_itainnova_footer_color.png" class="img-responsive pull-right"> <img alt="logo Moriarty del grupo Big Data de ITAINNOVA" src="img/logo_moriarty.png" class="img-responsive pull-right"></footer><script src="vendor/lodash/v4.17.4/lodash.min.js"></script><script src="vendor/jquery/v2.2.4/jquery.min.js"></script><script src="ita.configuration.js"></script><script src="js/ita.min.js"></script><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script><script>// LOADING....
+            $(document)
+                .ajaxStart(function() {
+                    $('.loading').addClass('show');
+                })
+                .ajaxComplete(function() {
+                    $('.loading').removeClass('show');
+                });
+            // -----------------------------------------------------------------
+            // selecciono según COOKIE guardada
+            var SELECT = $('#ontology_source')
+                .val( ITA.util.cookie('ita.ontologies') || "1" )
+                .on('change', function(){
+                    ITA.util.cookie('ita.ontologies', this.value);
+                    window.location.reload();
+                })[0];
+            SELECT.nextElementSibling.innerHTML = SELECT.options[SELECT.selectedIndex].title
+                ;</script>
