@@ -109,12 +109,12 @@ class Crawler:
        
         for link in soup.find_all('a'):
             path = link.get('href')
-            if path and path.startswith('/') :
+            if path and path.startswith('/') and url.startswith('http') :
                 path = urljoin(url, path)
             yield path
 
     def add_url_to_visit(self, url):
-        
+    
         if url is not None:
             if ";jsessionid=" in url:
                 url=url[:url.index(";jsessionid=")-1]             
@@ -122,9 +122,8 @@ class Crawler:
             if url not in self.visited_urls and url not in self.urls_to_visit and url not in self.no_visit and len(url)<300 and len(url)>5:
                 if url.endswith('.pdf'):
                     self.urls_to_visit.append(url)
-                elif   url.endswith('.csv') or url.endswith('.xls') or url.endswith('.xlsx') or url.endswith('.jpg') or url.endswith('.png') or url.endswith('.gif') or url.endswith('.css') or url.endswith('.xml'):
-                    pass
-                    #print("descartando ->"+url)
+                elif   url.endswith(('.csv','.xls','.xlsx','.jpg','.png','.gif','.css','.xml','.mp3','.mp4')):
+                    self.no_visit.append(url)
                 else:
                     self.urls_to_visit.append(url)
 
@@ -282,15 +281,14 @@ class Crawler:
           
             textosinacentos=sparqlhelper.eliminar_acentos(texto)
             textosinespaciosmultiples=str(re.sub(' +', ' ',textosinacentos))
-            addedIds={}
+            addedIds=set()
             for map in self.maps:
                 for key in map :
                     if key in textosinespaciosmultiples:
-                        pattern=r'(\.+|\s+|^|-)('+key+')[\s|\.|$|-]*'
+                        #pattern=r'[\.+|\s+|^|-]('+key+r')[\s|\.|$|-]*'
+                        pattern=r'\b'+key+r'\b'
                         match=re.search(pattern,textosinespaciosmultiples.replace("."," ")) 
-                        print (key)
                         if match is not None:
-                            print (match)
                             if map[key] not in  addedIds:
                                 # no incluir duplicados de uris iguales que puedan tener distinto nombre
                                 addedIds.add(map[key])
@@ -330,7 +328,7 @@ class Crawler:
                 for urlTemp in self.get_linked_urls(url, soup):
                     try:
                         if urlTemp is not None and  domain in urlTemp: 
-                            domainTemp = urlparse(url).netloc
+                            domainTemp = urlparse(urlTemp).netloc
                             domainTemp=domainTemp.replace("www.","")    
                             if  domain==domainTemp:
                                 self.add_url_to_visit(urlTemp)
@@ -382,5 +380,5 @@ class Crawler:
 if __name__ == '__main__':
     crawler=Crawler().run()
   
-   # crawler.crawl("https://www.turismodearagon.com/ficha/bolea/","turismodearagon.com")
+    #crawler.crawl("http://www.patrimonioculturaldearagon.es/agenda-portada/primera-temporada-de-lirica-y-danza-2021")
    
