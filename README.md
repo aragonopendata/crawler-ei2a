@@ -60,7 +60,8 @@ sparql_path='/sparql'
 
 sparql_path_auth='/sparql-auth'
 
-## tras completar el fichero de configuracion hay que ejecutar para generar la imagen de docker  
+## tras completar el fichero de configuracion hay que generar la imagen de docker 
+
 desde la carpeta principal del proyecto ejecutar:
 
   sh src/main/script/build.sh
@@ -71,5 +72,8 @@ para lanzar el crawler en la imagen creada
   
 una vez que el crawler a procesado todas las web el contenedor docker desaparece.
 
-## LOG los mensajes de log se insertan el journal del sistema, para verlos ejecutar:
-            journalctl CONTAINER_NAME=opendata-crawler -f
+## LOG 
+
+los mensajes de log se insertan el journal del sistema, para verlos ejecutar:
+
+journalctl CONTAINER_NAME=opendata-crawler -f
