@@ -4,9 +4,12 @@ Este proyecto contiene las carpetas y archivos necesarios para desplegar la apli
 
 ## Requisitos
 
-Las librarias usadas en este proyecto y sus respectivas versiones se pueden ver en el archivo 'src/main/python/requirements.txt'.
+Las librerias usadas en este proyecto y sus respectivas versiones se pueden ver en el archivo 'src/main/python/requirements.txt'.
+
 src/main/docker : archvos de configuracion de la imagen de docker
+
 src/main/python: codigo fuente del crawler
+
 src/main/script : script para generar la imagen de docker y ejecutar el crawler dentro de la imagen. 
 
 
@@ -17,9 +20,13 @@ no_visit = ["https://www.saludinforma.es/portalsi/web/salud/agenda",
                     "https://www.saludinforma.es/edsformacion/calendar",
                     "https://www.saludinforma.es/edsformacion/?time=", 
                     "https://transparencia.aragon.es/transparencia/declaraciones/JavierCenarroLagunas.pdf"]
+                    
 #nombre del archivo que contiene las urls o dominios a crawlear
+
 urlsfile='urls.csv'
-#las urla a crulear taambien se pueden especificar como un diccionario que contiene url:sector
+
+#las urls a crawlear tambien se pueden especificar como un diccionario que contiene url:sector
+
 urls={"https://transparencia.aragon.es":"sector-publico",
         "https://www.saludinforma.es":"salud",
         "https://educa.aragon.es/":"educacion",
@@ -34,22 +41,35 @@ urls={"https://transparencia.aragon.es":"sector-publico",
 }
 
 #usuario del servidor de sparql
+
 sparql_user=****
+
 #contraseña del servidor de sparql
+
 sparql_pass=***
+
 #url del servidor de sparql
+
 sparql_server=***
-#path donde se encutra el servicio de queries GET, sin autenticacion
+
+#path donde se encuentra el servicio de queries GET, sin autenticacion
+
 sparql_path='/sparql'
+
 #path donde se encuentra el servicio de queries POST, con autenticacion
+
 sparql_path_auth='/sparql-auth'
 
-##tras completar el fichero de configuracion hay que ejecutar para generar la imagen de docker  
+## tras completar el fichero de configuracion hay que ejecutar para generar la imagen de docker  
 desde la carpeta principal del proyecto ejecutar:
+
   sh src/main/script/build.sh
+  
 para lanzar el crawler en la imagen creada 
+
   sh src/main/script/run.sh
+  
 una vez que el crawler a procesado todas las web el contenedor docker desaparece.
 
-##LOG los mensajes de log se insertan el journal del sistema, para verlos ejecutar:
+## LOG los mensajes de log se insertan el journal del sistema, para verlos ejecutar:
             journalctl CONTAINER_NAME=opendata-crawler -f
