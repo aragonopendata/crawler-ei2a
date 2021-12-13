@@ -86,7 +86,7 @@ def query3():
     query += "    ?urlID schema:title ?t  "
     query += "    } } }"
 
-    print(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&format=csv&should-sponge=&timeout=0&signal_void=on',query,"csv"))
+    print(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
 
 def query4():
     query="PREFIX schema: <http://schema.org/>   PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl:<http://www.w3.org/2002/07/owl#> PREFIX ei2a:<http://opendata.aragon.es/def/ei2av2#> PREFIX locn: <http://www.w3.org/ns/locn#> PREFIX dc: <http://purl.org/dc/elements/1.1/title#>"
@@ -112,7 +112,7 @@ def query4():
     query += " ?entNOM <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://xmlns.com/foaf/0.1/Person> . " 
     query += " ?entNOM <http://xmlns.com/foaf/0.1/name> ?nombre }"
     query +=" }  }"
-    query += "    limit 1000 } "
+    query += "    limit 10 } "
     # print(query)
 
     print(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,'text/x-html tr'))
@@ -178,4 +178,6 @@ def deleteall():
             sparqlhelper.SparqlHelper.query(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,cfg.querystring,querydelete)     
       
 
+query4()
 deleteall()
+query4()

@@ -369,6 +369,7 @@ class Crawler:
                 logging.info(f'Crawling: {url}')
                                    
                 self.crawl(url)
+                logging.info(f'pending url: {len(self.urls_to_visit)}')
             except Exception:
                 logging.exception(f'Failed to crawl: {url}')
             finally:
