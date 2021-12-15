@@ -103,6 +103,11 @@ Cuando el programa haya procesado todas la urls que haya encontrado y que esten 
 
 Se debe configurar el ejecución periodica del crawler en cron u otro sistema similar. Se recomienda que la frecuencia de ejecucion sea semanal o mensual. 
 
+La siguiente línea configura cron para lanzar la tarea a las 00:00 de cada domingo, el proyecto se ha clonado en /argon/work/opendata-crawler/
+```cron
+0 0 * * 0  sh /argon/work/opendata-crawler/src/main/script/run.sh
+```
+
 ## LOG 
 
 Los mensajes de log se insertan el journal del sistema, para verlos ejecutar:
