@@ -313,7 +313,7 @@ class Crawler:
             domain = urlparse(url).netloc
             domain=domain.replace("www.","")      
             raw_text=""
-            if "pdf" not in contentType:
+            if "text" in contentType: # aunque se descartan ciertas extensiones pueden venir datos en formatos no deseados
                 raw_text =  response.text
                 #calcula el crc para ver si ha cambiado lo que hay en la bd
                 new_crc=zlib.crc32(response.text.encode('utf-8'))
@@ -329,13 +329,15 @@ class Crawler:
                                 self.add_url_to_visit(urlTemp)
                     except:
                         pass
-            else :
+            elif  "pdf"  in contentType:
             #calcula el crc para ver si ha cambiado lo que hay en la bd
                 if  len(response.content) < 2*1024*1024:  #solo procesamos los pdf menores de 2MB
                     new_crc=zlib.crc32(response.content)
                 else:
                     logging.info("Archivo pdf descartado")
                     return
+            else:
+                return
             #comprueba en la bd si ha habido cambios
             # si no existe se devuelve true 
             hasChanged=self.check_webpage_changes(new_crc,sector,uriID)          
