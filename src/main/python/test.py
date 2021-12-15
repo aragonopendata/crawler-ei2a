@@ -176,6 +176,7 @@ def deleteall():
             print("  ", col)
             querydelete =" DELETE WHERE { GRAPH <http://opendata.aragon.es/def/ei2av2> {<" + col +"> ?x ?y } }"
             sparqlhelper.SparqlHelper.query(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,cfg.querystring,querydelete)     
+
       
 
 query4()

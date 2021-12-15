@@ -176,15 +176,10 @@ class Crawler:
             if len(text.split(" ")) <5 or "cookies" in text:
                 # Remove tag
                 x.decompose()         
-       # print('. '.join(soup.stripped_strings))
-        #print(len(' '.join(soup.stripped_strings)))
-       # print(soup)
+     
         texto =  '. '.join(soup.stripped_strings)
         texto=texto.replace("..",".")        
      
-        #print(len(texto))
-        #print (texto)
-        
         return title,texto
 
         
@@ -336,8 +331,11 @@ class Crawler:
                         pass
             else :
             #calcula el crc para ver si ha cambiado lo que hay en la bd
-                new_crc=zlib.crc32(response.content)
-                raw_text= response.content
+                if  len(response.content) < 2*1024*1024:  #solo procesamos los pdf menores de 2MB
+                    new_crc=zlib.crc32(response.content)
+                else:
+                    logging.info("Archivo pdf descartado")
+                    return
             #comprueba en la bd si ha habido cambios
             # si no existe se devuelve true 
             hasChanged=self.check_webpage_changes(new_crc,sector,uriID)          
