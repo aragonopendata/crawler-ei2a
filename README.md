@@ -67,7 +67,7 @@ sparql_path_auth='/sparql-auth'
 El parámetro de configuración __urls__ se usa en caso de que el parametro __urlsfile__ no este configurado o el fichero especificado en el no exista. 
 
 ## Fichero de urls
-El archivo __urls.csv__ que se esta asignado en el parámetro de configuración __urlsfile__ contiene una tabla en formato csv con dos columnas que son la url a procesar y el sector o categoría en que se clasifica, el contenido que tiene actualmente es el siguiente:
+El archivo __urls.csv__ que esta asignado en el parámetro de configuración __urlsfile__ contiene una tabla en formato csv con dos columnas que son la url a procesar y el sector o categoría en que se clasifica, el contenido que tiene actualmente es el siguiente:
 ```
 url,sector
 https://transparencia.aragon.es,sector-publico
@@ -111,5 +111,6 @@ La siguiente línea configura cron para lanzar la tarea a las 00:00 de cada domi
 ## LOG 
 
 Los mensajes de log se insertan el journal del sistema, para verlos ejecutar:
-
+```
 journalctl CONTAINER_NAME=opendata-crawler -f
+```
