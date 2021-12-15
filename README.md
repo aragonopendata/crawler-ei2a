@@ -1,20 +1,24 @@
 # crawler-ei2a
 
-Este proyecto contiene las carpetas y archivos necesarios para desplegar la aplicación que realiza el rastreo de ciertos portales del Gobierno de Aragón
+Este proyecto contiene las carpetas y archivos necesarios para desplegar la aplicación que realiza el rastreo de las páginas web y pdfs de ciertos portales del Gobierno de Aragón e introduce los datos obtenidos dentro del gráfo de la ontología  https://opendata.aragon.es/def/ei2av2/
 
 ## Requisitos
 
 Las librerias usadas en este proyecto y sus respectivas versiones se pueden ver en el archivo 'src/main/python/requirements.txt'.
 
-src/main/docker : archvos de configuracion de la imagen de docker
+## Estructura de carpetas
 
-src/main/python: codigo fuente del crawler
+- src/main/docker : archivos de configuración de la imagen de docker
 
-src/main/script : script para generar la imagen de docker y ejecutar el crawler dentro de la imagen. 
+- src/main/python: codigo fuente del crawler
 
+- src/main/script : script para generar la imagen de docker y ejecutar el crawler dentro de la imagen. 
 
-## Configuracion el archivo  'src/main/python/config.py' contiene las variables de configuración
+## Configuración 
 
+El archivo  'src/main/python/config.py' contiene los parámetros de configuración
+
+```
 #lista con la urls que no se quieren procesar
 no_visit = ["https://www.saludinforma.es/portalsi/web/salud/agenda",
                     "https://www.saludinforma.es/edsformacion/calendar",
@@ -42,7 +46,7 @@ urls={"https://transparencia.aragon.es":"sector-publico",
 
 #usuario del servidor de sparql
 
-sparql_user=****
+sparql_user=***
 
 #contraseña del servidor de sparql
 
@@ -59,21 +63,48 @@ sparql_path='/sparql'
 #path donde se encuentra el servicio de queries POST, con autenticacion
 
 sparql_path_auth='/sparql-auth'
+```
+El parámetro de configuración __urls__ se usa en caso de que el parametro __urlsfile__ no este configurado o el fichero especificado en el no exista. 
 
-## tras completar el fichero de configuracion hay que generar la imagen de docker 
+## Fichero de urls
+El archivo __urls.csv__ que se esta asignado en el parámetro de configuración __urlsfile__ contiene una tabla en formato csv con dos columnas que son la url a procesar y el sector o categoría en que se clasifica, el contenido que tiene actualmente es el siguiente:
+```
+url,sector
+https://transparencia.aragon.es,sector-publico
+https://www.saludinforma.es,salud
+https://educa.aragon.es/,educacion
+https://www.turismodearagon.com/es/,turismo
+https://acpua.aragon.es/,educacion
+https://arasaac.org/,sociedad-bienestar
+http://patrimonioculturaldearagon.es/,cultura-ocio
+http://www.sarga.es,medio-ambiente
+https://inaem.aragon.es/,empleo
+https://sda.aragon.es/,ciencia-tecnologia
+https://aragoncircular.es/,economia
+http://www.aragonhoy.net/,sector-publico
+```
 
-desde la carpeta principal del proyecto ejecutar:
+## Instalación y paso entre entornos 
 
-  sh src/main/script/build.sh
-  
-para lanzar el crawler en la imagen creada 
+Para instalar el crawler simplemente hay que clonar el repositorio en la máquina correspondiente y rellenar los valores del fichero de configuración anteriror que tienen '***' con los valores adecuados en cada entorno.
 
-  sh src/main/script/run.sh
-  
-una vez que el crawler a procesado todas las web el contenedor docker desaparece.
+Antes de ejecutar el programa se debe crear la imagen de docker que contiene dicho programa y todas sus dependencias, para ello hay que ejecutar el siguente comando desde la carpeta principal del proyecto
+```sh
+sh src/main/script/build.sh
+```
+Una vez creada la imagen para lanzar la ejecución del programa se ejecutará: 
+```sh
+sh src/main/script/run.sh
+ ``` 
+Cuando el programa haya procesado todas la urls que haya encontrado y que esten dentro de los dominios configurados el contenedor docker desaparece.
+
+
+## Ejecución periódica
+
+Se debe configurar el ejecución periodica del crawler en cron u otro sistema similar. Se recomienda que la frecuencia de ejecucion sea semanal o mensual. 
 
 ## LOG 
 
-los mensajes de log se insertan el journal del sistema, para verlos ejecutar:
+Los mensajes de log se insertan el journal del sistema, para verlos ejecutar:
 
 journalctl CONTAINER_NAME=opendata-crawler -f
