@@ -42,9 +42,9 @@ urls={"https://transparencia.aragon.es":"sector-publico",
 }
 
 depth=5
-sparql_user='cargaslote3'
-sparql_pass='gJCbboEb2mT8qSzn'
-sparql_server='http://biv-aodback-01.aragon.local:8890'
+sparql_user='***'
+sparql_pass='***'
+sparql_server='***'
 sparql_path='/sparql'
 sparql_path_auth='/sparql-auth'
 querystring='?default-graph-uri=&should-sponge=&timeout=0&signal_void=on'
