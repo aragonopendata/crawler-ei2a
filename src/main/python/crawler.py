@@ -30,7 +30,8 @@ class Crawler:
     def __init__(self):
         self.visited_urls = []
         self.urls_to_visit = []
-        self.no_visit = cfg.no_visit
+        self.no_visit_default = cfg.no_visit
+        self.no_visit = []
         self.sectoresMap={}
         self.sparqlHelper=sparqlhelper.SparqlHelper
         self.sparql_user=cfg.sparql_user
@@ -41,7 +42,7 @@ class Crawler:
         self.querystring=cfg.querystring
         self.maps=[]
         self.load_urls(cfg.urlsfile)
-
+        self.depth= cfg.depth 
         self.loadData()
 
     def load_urls(self,urlsfile):
@@ -114,20 +115,27 @@ class Crawler:
             yield path
 
     def add_url_to_visit(self, url):
-    
-        if url is not None:
+        
+        if url is not None :
+            
             if ";jsessionid=" in url:
                 url=url[:url.index(";jsessionid=")-1]             
             # la longitud de la url no puede ser mayor de 299 caracteres ni menor de 6
-            if url not in self.visited_urls and url not in self.urls_to_visit and url not in self.no_visit and len(url)<300 and len(url)>5:
-                if url.endswith('.pdf'):
+            if url not in self.visited_urls and url not in self.urls_to_visit and url not in self.no_visit and self.check_no_visit_def(url) and len(url)<300 and len(url)>10 :
+                url_dept=url[10:].count('/')
+                if  url_dept<self.depth and not url.endswith(('.csv','.xls','.xlsx','.jpg','.png','.gif','.css','.xml','.mp3','.mp4')):
                     self.urls_to_visit.append(url)
-                elif   url.endswith(('.csv','.xls','.xlsx','.jpg','.png','.gif','.css','.xml','.mp3','.mp4')):
+                else: 
                     self.no_visit.append(url)
-                else:
-                    self.urls_to_visit.append(url)
 
-    
+
+
+    def check_no_visit_def(self,url):
+        for nv in self.no_visit_default:
+            if nv in url:
+                return False 
+        return True
+
 
     def _remove_divs(self,soup,attrs,values):
         for attribute in attrs:
@@ -185,7 +193,13 @@ class Crawler:
         
     def build_uri_id(self,url ):
        #usamos este diccionario para acortar la longitud de la url codigficada
-        diccionario={ "https://transparencia.aragon.es":"11","https://www.saludinforma.es":"12","https://educa.aragon.es":"13","https://www.turismodearagon.com":"14","https://acpua.aragon.es":"15","https://www.aragon.es":"16"}
+        diccionario={ "https://transparencia.aragon.es":"11",
+                      "https://www.saludinforma.es":"12",
+                      "https://educa.aragon.es":"13",
+                      "https://www.turismodearagon.com":"14",
+                      "https://acpua.aragon.es":"15",
+                      "https://www.aragon.es":"16",
+                      "http://www.aragonhoy.net":"17"}
         prefix="99"
         sectorTemp="sector-publico"
            
@@ -236,18 +250,20 @@ class Crawler:
       
         oldcrc=0
         hasChanged=True
-        query = "PREFIX schema: <http://schema.org/>  PREFIX recurso: <http://opendata.aragon.es/recurso/"+sector+"/documento/webpage/>  select ?crc  from <http://opendata.aragon.es/def/ei2av2> where  {  recurso:"+uriID+" schema:version   ?crc}"
+        try:
+            query = "PREFIX schema: <http://schema.org/>  PREFIX recurso: <http://opendata.aragon.es/recurso/"+sector+"/documento/webpage/>  select ?crc  from <http://opendata.aragon.es/def/ei2av2> where  {  recurso:"+uriID+" schema:version   ?crc}"
 
-        data=self.sparqlHelper.query(self.sparql_user,self.sparql_pass,self.sparql_server,self.sparql_path_auth,self.querystring,query)
-    
-        lines=data["results"]["bindings"]
-               
-        if lines is not None and len(lines)>0:
-            oldcrc=lines[0]["crc"]["value"]  
+            data=self.sparqlHelper.query(self.sparql_user,self.sparql_pass,self.sparql_server,self.sparql_path_auth,self.querystring,query)
+        
+            lines=data["results"]["bindings"]
+                
+            if lines is not None and len(lines)>0:
+                oldcrc=lines[0]["crc"]["value"]  
 
-        if oldcrc==str(newcrc):
-            hasChanged=False
-
+            if oldcrc==str(newcrc):
+                hasChanged=False
+        except:
+            hasChanged=True
         return hasChanged
 
     def delete_old_values(self,sector,uriID):
@@ -331,10 +347,14 @@ class Crawler:
                         pass
             elif  "pdf"  in contentType:
             #calcula el crc para ver si ha cambiado lo que hay en la bd
-                if  len(response.content) < 2*1024*1024:  #solo procesamos los pdf menores de 2MB
-                    new_crc=zlib.crc32(response.content)
-                else:
-                    logging.info("Archivo pdf descartado")
+                try:
+                    contentLength = str(headers['content-length'])	          
+                    if  int(str(contentLength)) < 1024*1024:  #solo procesamos los pdf menores de 1MB
+                        new_crc=zlib.crc32(response.content)
+                    else:
+                        logging.info("Archivo pdf descartado")
+                        return
+                except:
                     return
             else:
                 return
@@ -371,6 +391,7 @@ class Crawler:
                 self.crawl(url)
                 logging.info(f'pending url: {len(self.urls_to_visit)}')
             except Exception:
+                logging.info(f'EXCEPTION  Failed to crawl: {url}')
                 logging.exception(f'Failed to crawl: {url}')
             finally:
                 self.visited_urls.append(url)

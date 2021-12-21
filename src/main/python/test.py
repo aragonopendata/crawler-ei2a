@@ -166,7 +166,7 @@ def deleteall():
     query += "    ?urlID schema:url  ?u  . "
 
     query += "    } "
-    query += "    limit 5000 } "
+    query += "    limit 10000 } "
 
     resultados=str(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
     reader = csv.reader(resultados.split("\\n"))
@@ -179,6 +179,6 @@ def deleteall():
 
       
 
-query4()
-deleteall()
-query4()
+
+
+query5()
