@@ -37,7 +37,7 @@ no_visit = ["https://www.saludinforma.es/portalsi/web/salud/agenda",
             "turismodearagon.com/it/",
             "turismodearagon.com/ja/",
             "turismodearagon.com/en/",
-            "turismodearagon.com/mi-viaje/"
+            "turismodearagon.com/mi-viaje/",
             "/politica-privacidad/",
             "condiciones-de-uso",
             "perfil-del-contratante",
