@@ -125,9 +125,7 @@ class SparqlHelper():
                                     #print(grupo1.upper().strip()+" "+uri)
                                 keyy=n[:grupo.start()].strip()
                                 mapTemp[keyy]=uri
-                                #print(keyy+" "+uri)
-                              
-                             
+                                #print(keyy+" "+uri)                              
                             else:
                                 mapTemp[n]=uri
                             

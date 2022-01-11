@@ -401,8 +401,8 @@ class Crawler:
             finally:
                 self.visited_urls.append(url)
         self.endtime = time.time()
-        logging.info(f'SUMMARY:  processed: {self.processed}  added:{self.added} ')
-        logging.info(f'TIME:  { str(self.endtime- self.starttime)} seconds ')
+        logging.info(f'SUMMARY:  processed: {self.processed}  added:{self.added}')
+        logging.info(f'TIME:  { str(self.endtime- self.starttime)} seconds')
        
 if __name__ == '__main__':
     crawler=Crawler().run()
