@@ -43,9 +43,9 @@ urls={  "https://transparencia.aragon.es":"sector-publico",
 }
 
 depth=5
-sparql_user=******
-sparql_pass=*****
-sparql_server=*****
+sparql_user='***'
+sparql_pass='***'
+sparql_server='***'
 sparql_path='/sparql'
 sparql_path_auth='/sparql-auth'
 querystring='?default-graph-uri=&should-sponge=&timeout=0&signal_void=on'

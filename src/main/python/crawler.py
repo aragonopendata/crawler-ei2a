@@ -386,7 +386,6 @@ class Crawler:
                 logging.info(self.insert_data(uriID,sector,url,new_crc,titulo,summary,texto) )
                 self.added=self.added+1
 
-
     def run(self):
         while self.urls_to_visit:
             url = self.urls_to_visit.pop(0)

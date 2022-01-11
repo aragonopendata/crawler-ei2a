@@ -21,9 +21,30 @@ El archivo  'src/main/python/config.py' contiene los par√°metros de configuraci√
 ```
 #lista con la urls que no se quieren procesar
 no_visit = ["https://www.saludinforma.es/portalsi/web/salud/agenda",
-                    "https://www.saludinforma.es/edsformacion/calendar",
-                    "https://www.saludinforma.es/edsformacion/?time=", 
-                    "https://transparencia.aragon.es/transparencia/declaraciones/JavierCenarroLagunas.pdf"]
+            "https://www.saludinforma.es/edsformacion/calendar",
+            "https://www.saludinforma.es/edsformacion/?time=", 
+            "https://transparencia.aragon.es/transparencia/declaraciones/JavierCenarroLagunas.pdf",
+            "aragonhoy.net/index.php/date",
+            "aragonhoy.net/index.php/mod.imagenes",
+            "aragonhoy.net/index.php/mod.videos",
+            "aragonhoy.net/index.php/mod.tags",
+            "aragonhoy.net/index.php/mod.documentos",
+            "aragonhoy.net/index.php/mod.podcasts",
+            "transparencia.aragon.es/COVID19_20",
+            "turismodearagon.com/fr/",
+            "turismodearagon.com/zh-hant/",
+            "turismodearagon.com/de/",
+            "turismodearagon.com/it/",
+            "turismodearagon.com/ja/",
+            "turismodearagon.com/en/",
+            "turismodearagon.com/mi-viaje/",
+            "/politica-privacidad/",
+            "condiciones-de-uso",
+            "perfil-del-contratante",
+            "cookie",
+            "aviso-legal",
+            "?redirect=",
+            "/image/image_gallery?"]
                     
 #nombre del archivo que contiene las urls o dominios a crawlear
 
@@ -33,15 +54,15 @@ urlsfile='urls.csv'
 
 urls={"https://transparencia.aragon.es":"sector-publico",
         "https://www.saludinforma.es":"salud",
-        "https://educa.aragon.es/":"educacion",
-        "https://www.turismodearagon.com/es/":"turismo",
-        "https://acpua.aragon.es/":"educacion",
+        "https://educa.aragon.es":"educacion",
+        "https://www.turismodearagon.com":"turismo",
+        "https://acpua.aragon.es":"educacion",
         "https://arasaac.org/":"sociedad-bienestar",
-        "http://patrimonioculturaldearagon.es/":"cultura-ocio",
+        "http://patrimonioculturaldearagon.es":"cultura-ocio",
         "http://www.sarga.es":"medio-ambiente",
-        "https://inaem.aragon.es/":"empleo",
-        "https://sda.aragon.es/":"ciencia-tecnologia",
-        "https://aragoncircular.es/":"economia"
+        "https://inaem.aragon.es":"empleo",
+        "https://sda.aragon.es":"ciencia-tecnologia",
+        "https://aragoncircular.es":"economia"
 }
 
 #usuario del servidor de sparql

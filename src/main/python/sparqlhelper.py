@@ -108,7 +108,6 @@ class SparqlHelper():
                                 n=n[n.rfind(" ")+2:len(n)-1].title()+ " " +n[:n.rfind(" ")]
                                 #print(n)
                                 #print(uri)
-
                             if title:
                                 n=n.title()
                                 n=n.replace(" El "," el ").replace(" La "," la ").replace(" Los "," los ").replace(" Las "," las ").replace(" Del "," del ").replace(" De "," de ").replace(" Y "," y ").replace(" Un "," un ").replace(" Una "," una ").replace(" En "," en ").replace(" E "," e ")
