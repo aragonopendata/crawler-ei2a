@@ -79,7 +79,7 @@ class SparqlHelper():
                 #print(resp.content)
                 data= json.loads(resp.content)  
                 lines=data["results"]["bindings"]
-                print(len(lines))
+                #print(len(lines))
                 offset = offset+limit
                             
                 #lines = rset.split("\n")
@@ -106,8 +106,8 @@ class SparqlHelper():
                             
                             if n.endswith((' (La)',' (Las)',' (El)',' (Los)',' (LAS)',' (LA)',' (EL)',' (LOS)')):
                                 n=n[n.rfind(" ")+2:len(n)-1].title()+ " " +n[:n.rfind(" ")]
-                                print(n)
-                                print(uri)
+                                #print(n)
+                                #print(uri)
 
                             if title:
                                 n=n.title()
@@ -120,12 +120,12 @@ class SparqlHelper():
                                 grupo1=grupo.group(1)
                                 if parentesis:
                                     mapTemp[grupo1.strip()]=uri
-                                    print(grupo1.strip()+" "+uri)
+                                    #print(grupo1.strip()+" "+uri)
                                     mapTemp[grupo1.upper().strip()]=uri
-                                    print(grupo1.upper().strip()+" "+uri)
+                                    #print(grupo1.upper().strip()+" "+uri)
                                 keyy=n[:grupo.start()].strip()
                                 mapTemp[keyy]=uri
-                                print(keyy+" "+uri)
+                                #print(keyy+" "+uri)
                               
                              
                             else:

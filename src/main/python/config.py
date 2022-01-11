@@ -9,13 +9,15 @@ no_visit = ["https://www.saludinforma.es/portalsi/web/salud/agenda",
                     "aragonhoy.net/index.php/mod.documentos",
                     "aragonhoy.net/index.php/mod.podcasts",
                     "transparencia.aragon.es/COVID19_20",
+                    "inaem.aragon.es/print/",
                     "https://www.turismodearagon.com/fr/",
                     "https://www.turismodearagon.com/zh-hant/",
                     "https://www.turismodearagon.com/de/",
                     "https://www.turismodearagon.com/it/",
                     "https://www.turismodearagon.com/ja/",
                     "https://www.turismodearagon.com/en/",
-                    "https://www.turismodearagon.com/mi-viaje/"
+                    "https://www.turismodearagon.com/mi-viaje/",
+                    "https://www.turismodearagon.com/como-llegar",
                     "/politica-privacidad/",
                     "condiciones-de-uso",
                     "perfil-del-contratante",
@@ -26,9 +28,7 @@ no_visit = ["https://www.saludinforma.es/portalsi/web/salud/agenda",
 
 urlsfile='urls.csv'
 
-
-
-urls={"https://transparencia.aragon.es":"sector-publico",
+urls={  "https://transparencia.aragon.es":"sector-publico",
         "https://www.saludinforma.es":"salud",
         "https://educa.aragon.es/":"educacion",
         "https://www.turismodearagon.com/es/":"turismo",
@@ -39,12 +39,13 @@ urls={"https://transparencia.aragon.es":"sector-publico",
         "https://inaem.aragon.es/":"empleo",
         "https://sda.aragon.es/":"ciencia-tecnologia",
         "https://aragoncircular.es/":"economia"
+      
 }
 
 depth=5
-sparql_user='cargaslote3'
-sparql_pass='gJCbboEb2mT8qSzn'
-sparql_server='http://biv-aodback-01.aragon.local:8890'
+sparql_user=******
+sparql_pass=*****
+sparql_server=*****
 sparql_path='/sparql'
 sparql_path_auth='/sparql-auth'
 querystring='?default-graph-uri=&should-sponge=&timeout=0&signal_void=on'

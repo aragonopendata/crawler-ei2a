@@ -13,6 +13,7 @@ import config as cfg
 import os.path
 import re
 from datetime import datetime
+import time
 
 
 
@@ -28,6 +29,7 @@ class Crawler:
    
     
     def __init__(self):
+        self.starttime = time.time()
         self.visited_urls = []
         self.urls_to_visit = []
         self.no_visit_default = cfg.no_visit
@@ -40,6 +42,8 @@ class Crawler:
         self.sparql_path=cfg.sparql_path
         self.sparql_path_auth=cfg.sparql_path_auth
         self.querystring=cfg.querystring
+        self.processed=0
+        self.added=0
         self.maps=[]
         self.load_urls(cfg.urlsfile)
         self.depth= cfg.depth 
@@ -256,7 +260,7 @@ class Crawler:
             data=self.sparqlHelper.query(self.sparql_user,self.sparql_pass,self.sparql_server,self.sparql_path_auth,self.querystring,query)
         
             lines=data["results"]["bindings"]
-                
+           
             if lines is not None and len(lines)>0:
                 oldcrc=lines[0]["crc"]["value"]  
 
@@ -332,9 +336,10 @@ class Crawler:
             if "text" in contentType: # aunque se descartan ciertas extensiones pueden venir datos en formatos no deseados
                 raw_text =  response.text
                 #calcula el crc para ver si ha cambiado lo que hay en la bd
-                new_crc=zlib.crc32(response.text.encode('utf-8'))
+              
                 soup = BeautifulSoup(raw_text, 'html.parser')
-            
+                titulo,texto=self.cleanHtml(soup)
+                new_crc=zlib.crc32(texto.encode('utf-8'))
                 #si no es pdf busca los enlaces y los añadimos a la lista de url a procesar
                 for urlTemp in self.get_linked_urls(url, soup):
                     try:
@@ -356,19 +361,19 @@ class Crawler:
                         return
                 except:
                     return
-            else:
+            else:          
                 return
             #comprueba en la bd si ha habido cambios
             # si no existe se devuelve true 
             hasChanged=self.check_webpage_changes(new_crc,sector,uriID)          
             #logging.info("Inserting :"+ str(hasChanged)) 
 
+            self.processed= self.processed+1     
+      
             if hasChanged:
                  #print(contentType)
                 #extrae el contenido
-                if "pdf" not in contentType:
-                    titulo,texto=self.cleanHtml(soup)
-                else:
+                if "pdf"  in contentType:
                     titulo,texto=self.pdf_to_text(response.content) 
             
                 #resume el contenido
@@ -379,7 +384,7 @@ class Crawler:
                 self.delete_old_values(sector,uriID)
                 # inserta los nuevos datos  
                 logging.info(self.insert_data(uriID,sector,url,new_crc,titulo,summary,texto) )
-
+                self.added=self.added+1
 
 
     def run(self):
@@ -395,9 +400,9 @@ class Crawler:
                 logging.exception(f'Failed to crawl: {url}')
             finally:
                 self.visited_urls.append(url)
-
-    
-
+        self.endtime = time.time()
+        logging.info(f'SUMMARY:  processed: {self.processed}  added:{self.added} ')
+        logging.info(f'TIME:  { str(self.endtime- self.starttime)} seconds ')
        
 if __name__ == '__main__':
     crawler=Crawler().run()
