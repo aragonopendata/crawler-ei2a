@@ -281,7 +281,7 @@ class Crawler:
         
         query = f"PREFIX schema: <http://schema.org/>   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
         query = f"{query} PREFIX owl: <http://www.w3.org/2002/07/owl#>  PREFIX recurso: <http://opendata.aragon.es/recurso/{sector}/documento/webpage/> "        
-        query = f"{query} PREFIX nti: <http://datos.gob.es/kos/sector-publico/sector/> "
+        query = f"{query} PREFIX nti: <http://datos.gob.es/kos/sector-publico/sector/> PREFIX dcat: <http://www.w3.org/ns/dcat#> "
         query = f"{query} INSERT DATA {{ GRAPH <http://opendata.aragon.es/def/ei2av2> {{ "
         query = f"{query}  recurso:{uriID} rdf:type schema:CreativeWork . "
         query = f"{query}  recurso:{uriID} rdf:type owl:NamedIndividual  . "
@@ -290,6 +290,7 @@ class Crawler:
         query = f"{query}  recurso:{uriID} schema:version '{str(crc)}' . "
         query = f"{query}  recurso:{uriID} schema:abstract '{summary}' . "
         query = f"{query}  recurso:{uriID} schema:concept nti:{sector} . "
+        query = f"{query}  recurso:{uriID} dcat:theme nti:{sector} . "
         query = f"{query}  recurso:{uriID} schema:sdDatePublished   '{ datetime.now().strftime('%Y%m%d')}' "
 
         try:
