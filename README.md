@@ -16,7 +16,7 @@ Las librerias usadas en este proyecto y sus respectivas versiones se pueden ver 
 
 ## Configuración 
 
-El archivo  'src/main/python/config.py' contiene los parámetros de configuración
+El archivo  'src/main/python/config.py' contiene los parámetros de configuración a actualizar dependiendo de los entornos de despliegue, usuarios y passwords.
 
 ```
 #lista con la urls que no se quieren procesar
@@ -121,7 +121,7 @@ Cuando el programa haya procesado todas la urls que haya encontrado y que esten 
 
 ## Ejecución periódica
 
-Se debe configurar el ejecución periodica del crawler en cron u otro sistema similar. Se recomienda que la frecuencia de ejecucion sea semanal o mensual. 
+En caso de querer ejecutar el crawler de manera periodica, se debe configurar en cron u otro sistema similar. Se recomienda que la frecuencia de ejecucion sea semanal o mensual. 
 
 La siguiente línea configura cron para lanzar la tarea a las 00:00 de cada domingo, el proyecto se ha clonado en /crawler-ei2a/
 ```cron
