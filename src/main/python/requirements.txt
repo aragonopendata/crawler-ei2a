@@ -1,4 +1,4 @@
 beautifulsoup4==4.10.0
 pymupdf
-requests==2.21.0
+requests==2.32.0
 summa==1.2.0
