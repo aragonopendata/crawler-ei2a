@@ -24,4 +24,4 @@ RUN python3 --version
 
 USER worker 
 
-#CMD [ "python3", "crawler.py"]
+CMD [ "python3", "crawler.py"]
