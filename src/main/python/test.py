@@ -3,8 +3,16 @@ from urllib.parse import urljoin
 from urllib.parse import urlparse
 import sparqlhelper
 import csv
+from dotenv import load_dotenv
+import os
 
 import config as cfg
+
+load_dotenv()
+
+sparql_user = os.getenv("SPARQL_USER")
+sparql_pass = os.getenv("SPARQL_PASS")
+sparql_server = os.getenv("SPARQL_SERVER")
 
 def query1():
     query="PREFIX schema: <http://schema.org/>   PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl:<http://www.w3.org/2002/07/owl#> PREFIX ei2a:<http://opendata.aragon.es/def/ei2av2#> PREFIX locn: <http://www.w3.org/ns/locn#> PREFIX dc: <http://purl.org/dc/elements/1.1/title#>"
@@ -19,7 +27,7 @@ def query1():
     query += " ?ent1 <http://xmlns.com/foaf/0.1/name> ?nombre "
     query += " } "
     query += " group by ?urlID }"
-    print(sparqlhelper.SparqlHelper.query_csv(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&format=csv&should-sponge=&timeout=0&signal_void=on',query))
+    print(sparqlhelper.SparqlHelper.query_csv(sparql_user,sparql_pass,sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&format=csv&should-sponge=&timeout=0&signal_void=on',query))
 
 
 def query2():
@@ -70,7 +78,7 @@ def query2():
     query +=" } } }"
 
 
-    print(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
+    print(sparqlhelper.SparqlHelper.query_format(sparql_user,sparql_pass,sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
 
 def query3():
 
@@ -86,7 +94,7 @@ def query3():
     query += "    ?urlID schema:title ?t  "
     query += "    } } }"
 
-    print(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
+    print(sparqlhelper.SparqlHelper.query_format(sparql_user,sparql_pass,sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
 
 def query4():
     query="PREFIX schema: <http://schema.org/>   PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl:<http://www.w3.org/2002/07/owl#> PREFIX ei2a:<http://opendata.aragon.es/def/ei2av2#> PREFIX locn: <http://www.w3.org/ns/locn#> PREFIX dc: <http://purl.org/dc/elements/1.1/title#>"
@@ -115,7 +123,7 @@ def query4():
     query += "    limit 10 } "
     # print(query)
 
-    print(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,'text/x-html tr'))
+    print(sparqlhelper.SparqlHelper.query_format(sparql_user,sparql_pass,sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,'text/x-html tr'))
 
 
 def query5():
@@ -128,7 +136,7 @@ def query5():
     query += "    ?urlID schema:url  ?u  . "
     query += "    } "   
 
-    print(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
+    print(sparqlhelper.SparqlHelper.query_format(sparql_user,sparql_pass,sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
 
 
 def query6():
@@ -140,7 +148,7 @@ def query6():
                     order by asc(?s) 
                 """
 
-    print(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,cfg.querystring,query,"csv"))
+    print(sparqlhelper.SparqlHelper.query_format(sparql_user,sparql_pass,sparql_server,cfg.sparql_path_auth,cfg.querystring,query,"csv"))
 
 
 
@@ -151,7 +159,7 @@ def test7():
                     ?s <http://purl.org/dc/elements/1.1/title> ?nombre  }                   
                     order by asc(?s) 
                 """
-    sparqlhelper.SparqlHelper.queryPaged(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,cfg.querystring,query,1,True)
+    sparqlhelper.SparqlHelper.queryPaged(sparql_user,sparql_pass,sparql_server,cfg.sparql_path_auth,cfg.querystring,query,1,True)
 
 
 
@@ -168,14 +176,14 @@ def deleteall():
     query += "    } "
     query += "    limit 10000 } "
 
-    resultados=str(sparqlhelper.SparqlHelper.query_format(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
+    resultados=str(sparqlhelper.SparqlHelper.query_format(sparql_user,sparql_pass,sparql_server,cfg.sparql_path_auth,'?default-graph-uri=&should-sponge=&timeout=0&signal_void=on',query,"csv"))
     reader = csv.reader(resultados.split("\\n"))
     next(reader)
     for row in reader:
         for col in row:
             print("  ", col)
             querydelete =" DELETE WHERE { GRAPH <http://opendata.aragon.es/def/ei2av2> {<" + col +"> ?x ?y } }"
-            sparqlhelper.SparqlHelper.query(cfg.sparql_user,cfg.sparql_pass,cfg.sparql_server,cfg.sparql_path_auth,cfg.querystring,querydelete)     
+            sparqlhelper.SparqlHelper.query(sparql_user,sparql_pass,sparql_server,cfg.sparql_path_auth,cfg.querystring,querydelete)     
 
       
 

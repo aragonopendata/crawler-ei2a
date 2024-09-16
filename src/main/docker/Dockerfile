@@ -1,4 +1,4 @@
-FROM python:3.6.9
+FROM python:3.8
 #https://medium.com/@DahlitzF/run-python-applications-as-non-root-user-in-docker-containers-by-example-cba46a0ff384
 
 RUN pip3 install --upgrade pip
@@ -24,4 +24,4 @@ RUN python3 --version
 
 USER worker 
 
-CMD [ "python3.6", "crawler.py"]
+#CMD [ "python3", "crawler.py"]
