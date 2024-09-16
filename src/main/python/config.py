@@ -8,6 +8,7 @@ no_visit = ["www.saludinforma.es/portalsi/web/salud/agenda",
                     "aragonhoy.net/index.php/mod.tags",
                     "aragonhoy.net/index.php/mod.documentos",
                     "aragonhoy.net/index.php/mod.podcasts",
+                    "www.aragonhoy.es/intranet/image/",
                     "transparencia.aragon.es/COVID19_20",
                     "inaem.aragon.es/print/",
                     "www.turismodearagon.com/fr/",
@@ -34,18 +35,17 @@ urls={  "https://transparencia.aragon.es":"sector-publico",
         "https://www.turismodearagon.com/es/":"turismo",
         "https://acpua.aragon.es/":"educacion",
         "https://arasaac.org/":"sociedad-bienestar",
-        "http://patrimonioculturaldearagon.es/":"cultura-ocio",
-        "http://www.sarga.es":"medio-ambiente",
+        "https://patrimonioculturaldearagon.es/":"cultura-ocio",
+        "https://www.sarga.es":"medio-ambiente",
         "https://inaem.aragon.es/":"empleo",
         "https://sda.aragon.es/":"ciencia-tecnologia",
-        "https://aragoncircular.es/":"economia"
+        "https://aragoncircular.es/":"economia",
+        "https://www.aragonhoy.es/":"sector-publico",
+        "https://culturadearagon.es/":"cultura-ocio"
       
 }
 
 depth=5
-sparql_user='***'
-sparql_pass='***'
-sparql_server='***'
 sparql_path='/sparql'
 sparql_path_auth='/sparql-auth'
 querystring='?default-graph-uri=&should-sponge=&timeout=0&signal_void=on'

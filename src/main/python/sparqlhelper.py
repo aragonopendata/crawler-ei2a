@@ -56,7 +56,7 @@ class SparqlHelper():
        
         return resp.content   
 
-    def queryPaged(sparql_user,sparql_pass,sparql_server,sparql_path_auth,querystring,query,min_words=1,title=False,parentesis=False):
+    def query_paged(sparql_user,sparql_pass,sparql_server,sparql_path_auth,querystring,query,min_words=1,title=False,parentesis=False):
 
         url = sparql_server+sparql_path_auth+querystring+"&format=format=application/json"
     
@@ -64,33 +64,21 @@ class SparqlHelper():
         headers["Content-Type"]="application/sparql-query"
         offset=0
         limit=10000
-        queryOffset=""
-        mapTemp={}
+        query_offset=""
+        map_temp={}
         try:
             while True:
             
-                queryOffset= "select * where { " + query +" }  offset "+ str(offset) + " limit " +str(limit) 
-                #print(queryOffset)
-                resp = requests.post(url, headers=headers,auth=HTTPDigestAuth(sparql_user,sparql_pass ),  data=queryOffset,   timeout=10)
-            
-                    
-                # the_sourcecode = plain_text.decode('UTF-8').encode('ASCII')
-                #data = resp.json()
-                #print(resp.content)
+                query_offset= "select * where { " + query +" }  offset "+ str(offset) + " limit " +str(limit) 
+                resp = requests.post(url, headers=headers,auth=HTTPDigestAuth(sparql_user,sparql_pass ),  data=query_offset,   timeout=10)
+
                 data= json.loads(resp.content)  
                 lines=data["results"]["bindings"]
-                #print(len(lines))
                 offset = offset+limit
-                            
-                #lines = rset.split("\n")
-        
-                mapTemp={}
+                                    
+                map_temp={}
                 for  line  in  lines :
-                    #print(line)
                     uri=line["s"]["value"]
-                    #values line.split(",", 2)
-                    #uri=values[0]
-                    #s=values[1]
                     nombre=line["nombre"]["value"]
                     words=nombre.split(" ")
                     if len(words)>=min_words:
@@ -99,15 +87,9 @@ class SparqlHelper():
                             n=re.sub(' +', ' ',n) #eliminamos los espacios multiples
                             n=eliminar_acentos(n).strip()
                             n=n.replace("Arag?n","Aragon")
-
-                            articulo=re.search('\(([^)]+)', n)   
-
-                            #n=n.replace(" (la)","").replace(" (La)","").replace(" (LA)","(La").replace(" (las)","").replace(" (Las)","").replace(" (LAS)","").replace(" (los)","").replace(" (Los)","").replace(" (LOS)","").replace(" (el)","").replace(" (El)","").replace(" (EL)","")
                             
                             if n.endswith((' (La)',' (Las)',' (El)',' (Los)',' (LAS)',' (LA)',' (EL)',' (LOS)')):
                                 n=n[n.rfind(" ")+2:len(n)-1].title()+ " " +n[:n.rfind(" ")]
-                                #print(n)
-                                #print(uri)
                             if title:
                                 n=n.title()
                                 n=n.replace(" El "," el ").replace(" La "," la ").replace(" Los "," los ").replace(" Las "," las ").replace(" Del "," del ").replace(" De "," de ").replace(" Y "," y ").replace(" Un "," un ").replace(" Una "," una ").replace(" En "," en ").replace(" E "," e ")
@@ -118,15 +100,12 @@ class SparqlHelper():
                             if (grupo is not None):  
                                 grupo1=grupo.group(1)
                                 if parentesis:
-                                    mapTemp[grupo1.strip()]=uri
-                                    #print(grupo1.strip()+" "+uri)
-                                    mapTemp[grupo1.upper().strip()]=uri
-                                    #print(grupo1.upper().strip()+" "+uri)
+                                    map_temp[grupo1.strip()]=uri
+                                    map_temp[grupo1.upper().strip()]=uri
                                 keyy=n[:grupo.start()].strip()
-                                mapTemp[keyy]=uri
-                                #print(keyy+" "+uri)                              
+                                map_temp[keyy]=uri
                             else:
-                                mapTemp[n]=uri
+                                map_temp[n]=uri
                             
                         except Exception as inst:
                             print(inst)    # the exception instance
@@ -135,40 +114,31 @@ class SparqlHelper():
                     break
         except:            
             pass
-        return mapTemp
+        return map_temp
    
-    def queryGet(sparql_server,sparql_path,query,min_words=1,title=False):
+    def query_get(sparql_server,sparql_path,query,min_words=1,title=False):
 
         url = sparql_server+sparql_path    
        
         offset=0
         limit=10000
-        queryOffset=""
-        mapTemp={}
+        query_offset=""
+        map_temp={}
         try:
             while True:
             
-                queryOffset= "select * where { " + query +" }  offset "+ str(offset) + " limit " +str(limit) 
-                #print(queryOffset)
-                resp = requests.get(url+"&query="+urllib.parse.quote_plus(queryOffset), timeout=10)
+                query_offset= "select * where { " + query +" }  offset "+ str(offset) + " limit " +str(limit) 
+                resp = requests.get(url+"&query="+urllib.parse.quote_plus(query_offset), timeout=10)
             
-                    
-                # the_sourcecode = plain_text.decode('UTF-8').encode('ASCII')
-                #data = resp.json()
                 data= json.loads(resp.content)  
                 lines=data["results"]["bindings"]
                 print(len(lines))
                 offset = offset+limit
-                            
-                #lines = rset.split("\n")
-        
-                mapTemp={}
+                                    
+                map_temp={}
                 for  line  in  lines :
-                    #print(line)
                     uri=line["s"]["value"]
-                    #values line.split(",", 2)
-                    #uri=values[0]
-                    #s=values[1]
+
                     nombre=line["nombre"]["value"]
                     n=str(nombre)        
                     words=nombre.split(" ")
@@ -181,16 +151,14 @@ class SparqlHelper():
                             if (title):
                                 n=n.title()
                                 n=n.replace(" El "," el ").replace(" La "," la ").replace(" del "," del ").replace(" de "," de ").replace(" Y "," y ").replace(" Un "," un ").replace(" Una "," una ")
-                            mapTemp[n]=uri.replace("\"","")
-                            #print(n+" "+uri)
+                            map_temp[n]=uri.replace("\"","")
                         except Exception as inst:
-                            print(inst)    # the exception instance
-                            pass
+                            logging.exception(f"Unexpected error in query_get function: {inst}")
                 if len(lines)<limit:
                     break
-        except:            
-            pass
-        return mapTemp
+        except Exception as e:
+            logging.exception(f"Unexpected error in query_get function: {e}")
+        return map_temp
 
 def eliminar_acentos(texto):
     textosinacentos=texto.replace( "á","a").replace("é","e").replace("í","i").replace("ó","o").replace("ú","u").replace("ü","u")
