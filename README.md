@@ -106,7 +106,7 @@ https://aragoncircular.es/,economia
 
 ## Instalación y paso entre entornos 
 
-Para instalar el crawler simplemente hay que clonar el repositorio en la máquina correspondiente y rellenar los valores del fichero de configuración anterior que tienen '***' con los valores adecuados en cada entorno.
+Para instalar el crawler simplemente hay que clonar el repositorio en la máquina correspondiente y crear el archivo .env con las variables correspondientes según el entorno.
 
 Antes de ejecutar el programa se debe crear la imagen de docker que contiene dicho programa y todas sus dependencias, para ello hay que ejecutar el siguiente comando desde la carpeta principal del proyecto
 ```sh
