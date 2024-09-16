@@ -274,10 +274,6 @@ class Crawler:
 
     def insert_data(self, uri_id, sector, url, crc, title, summary, texto):
 
-        print(self.sparql_user)
-        print(self.sparql_pass)
-        print(self.sparql_server)
-
         query = "PREFIX schema: <http://schema.org/>   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
         query = f"{query} PREFIX owl: <http://www.w3.org/2002/07/owl#>  PREFIX recurso: <http://opendata.aragon.es/recurso/{sector}/documento/webpage/> "
         query = f"{query} PREFIX nti: <http://datos.gob.es/kos/sector-publico/sector/> PREFIX dcat: <http://www.w3.org/ns/dcat#> "
@@ -311,9 +307,7 @@ class Crawler:
 
 
         query = f"{query} }} }}"
-        print(query)
-        return query
-        # return (self.sparql_helper.insertdata(self.sparql_user, self.sparql_pass, self.sparql_server, self.sparql_path_auth,self.querystring, query))
+        return (self.sparql_helper.insertdata(self.sparql_user, self.sparql_pass, self.sparql_server, self.sparql_path_auth,self.querystring, query))
 
     def crawl(self, url):
         try:
