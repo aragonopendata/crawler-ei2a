@@ -1,7 +1,8 @@
 FROM python:3.8
 #https://medium.com/@DahlitzF/run-python-applications-as-non-root-user-in-docker-containers-by-example-cba46a0ff384
 
-RUN pip3 install --upgrade pip
+
+#RUN pip3 install --upgrade pip
 
 #RUN adduser worker
 RUN addgroup worker && useradd -g worker worker
@@ -17,8 +18,9 @@ USER worker
 ENV PATH="/home/worker/.local/bin:${PATH}"
 ENV PYTHONPATH=.:$PYTHONPATH
 
+RUN pip config --user set global.progress_bar off
 
-RUN pip3  install  --user -r /home/worker/requirements.txt
+RUN pip3 install --user --no-cache-dir --no-use-pep517 -r /home/worker/requirements.txt
 
 RUN python3 --version
 
