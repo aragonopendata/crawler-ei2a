@@ -18,6 +18,10 @@ from dotenv import load_dotenv
 import config as cfg
 import sparqlhelper
 
+from opentelemetry_config import OpenTelemetryConfig
+from opentelemetry.trace import get_current_span
+from opentelemetry.trace.status import Status, StatusCode
+
 load_dotenv()
 logging.basicConfig(
     format='%(asctime)s %(levelname)s:%(message)s',
@@ -28,26 +32,42 @@ logging.basicConfig(
 class Crawler:
 
     def __init__(self):
-        self.starttime = time.time()
-        self.endtime = None
-        self.visited_urls = []
-        self.urls_to_visit = []
-        self.no_visit_default = cfg.no_visit
-        self.no_visit = []
-        self.sectores_map = {}
-        self.sparql_helper = sparqlhelper.SparqlHelper
-        self.sparql_user = os.getenv('SPARQL_USER')
-        self.sparql_pass = os.getenv('SPARQL_PASS')
-        self.sparql_server = os.getenv('SPARQL_SERVER')
-        self.sparql_path = cfg.sparql_path
-        self.sparql_path_auth = cfg.sparql_path_auth
-        self.querystring = cfg.querystring
-        self.processed = 0
-        self.added = 0
-        self.maps = []
-        self.load_urls(cfg.urlsfile)
-        self.depth = cfg.depth
-        self.load_data()
+        with tracer.start_as_current_span("Crawler Initialization"):
+            self.starttime = time.time()
+            self.endtime = None
+            self.visited_urls = []
+            self.urls_to_visit = []
+            self.no_visit_default = cfg.no_visit
+            self.no_visit = []
+            self.sectores_map = {}
+            self.sparql_helper = sparqlhelper.SparqlHelper
+            self.sparql_user = os.getenv('SPARQL_USER')
+            self.sparql_pass = os.getenv('SPARQL_PASS')
+            self.sparql_server = os.getenv('SPARQL_SERVER')
+            self.sparql_path = cfg.sparql_path
+            self.sparql_path_auth = cfg.sparql_path_auth
+            self.querystring = cfg.querystring
+            self.processed = 0
+            self.added = 0
+            self.maps = []
+            self.load_urls(cfg.urlsfile)
+            self.depth = cfg.depth
+            self.load_data()
+
+            meter = get_meter("CrawlerService", "1.0.0")
+        
+            self.insertion_counter = meter.create_counter(
+                "successful_insertions",
+                description="Número de inserciones exitosas en Virtuoso."
+            )
+            self.error_counter = meter.create_counter(
+                "query_errors",
+                description="Número de errores durante la construcción de las queries SPARQL."
+            )
+            self.execution_histogram = meter.create_histogram(
+                "execution_time",
+                description="Tiempo de ejecución de la función insert_data en segundos."
+            )
 
     def load_urls(self, urlsfile):
         if os.path.exists(urlsfile):
@@ -310,92 +330,153 @@ class Crawler:
         return (self.sparql_helper.insertdata(self.sparql_user, self.sparql_pass, self.sparql_server, self.sparql_path_auth,self.querystring, query))
 
     def crawl(self, url):
-        try:
-            # descargamos el contenido de la url, puede ser una web o un pdf
-            response = requests.get(url)
-            if response.status_code == 200:
-                headers = response.headers
-                uri_id, sector = self.build_uri_id(url)
-                content_type = str(headers['content-type'])
-                has_changed = True
-                new_crc = 0
-                titulo = ""
-                texto = ""
-                domain = urlparse(url).netloc
-                domain = domain.replace("www.", "")
-                raw_text = ""
-                if "text" in content_type:  # aunque se descartan ciertas extensiones pueden venir datos en formatos no deseados
-                    raw_text = response.text
-                    # calcula el crc para ver si ha cambiado lo que hay en la bd
 
-                    soup = BeautifulSoup(raw_text, 'html.parser')
-                    titulo, texto = self.clean_html(soup)
-                    new_crc = zlib.crc32(texto.encode('utf-8'))
-                    # si no es pdf busca los enlaces y los añadimos a la lista de url a procesar
-                    for url_temp in self.get_linked_urls(url, soup):
-                        try:
-                            if url_temp is not None and domain in url_temp:
-                                domain_temp = urlparse(url_temp).netloc
-                                domain_temp = domain_temp.replace("www.", "")
-                                if domain == domain_temp:
-                                    self.add_url_to_visit(url_temp)
-                        except Exception as e:
-                            logging.exception(f"Error while processing URL {url_temp}: {e}")
-                elif "pdf" in content_type:
-                    # calcula el crc para ver si ha cambiado lo que hay en la bd
-                    try:
-                        content_length = str(headers['content-length'])
-                        if int(str(content_length)) < 1024 * 1024:  # solo procesamos los pdf menores de 1MB
-                            new_crc = zlib.crc32(response.content)
-                        else:
-                            logging.info("Archivo pdf descartado")
-                            return
-                    except Exception as e:
-                        logging.exception(f"Error while processing PDF content length for URL {url}: {e}")
-                        return
-                else:
-                    return
-                # comprueba en la bd si ha habido cambios
-                # si no existe se devuelve true 
-                has_changed = self.check_webpage_changes(new_crc, sector, uri_id)
+        with tracer.start_as_current_span(f'Crawl {url}') as span:
+            span.set_attribute("url", url)
 
-                self.processed = self.processed + 1
+            try:
+                # descargamos el contenido de la url, puede ser una web o un pdf
+                response = requests.get(url)
+                span.set_attribute("status", esponse.status_code)
 
-                if has_changed:
-                    # extrae el contenido
-                    if "pdf" in content_type:
-                        titulo, texto = self.pdf_to_text(response.content)
-
-                        # resume el contenido
-                    summary = self.summarize_text(texto)
-                    summary = summary.replace("\n", " ")
-                    summary = re.sub(' +', ' ', summary)  # eliminamos los espacios multiples
-                    # borra los datos antiguos
+                if response.status_code == 200:
                     
-                    #!!!
-                    #self.delete_old_values(sector, uri_id)
-                    # inserta los nuevos datos  
-                    logging.info(self.insert_data(uri_id, sector, url, new_crc, titulo, summary, texto))
-                    self.added = self.added + 1
-        except Exception as e:
-            logging.exception(f"Error during crawling URL {url}: {e}")
+                    headers = response.headers
+                    uri_id, sector = self.build_uri_id(url)
+                    content_type = str(headers['content-type'])
+                    has_changed = True
+                    new_crc = 0
+                    titulo = ""
+                    texto = ""
+                    domain = urlparse(url).netloc
+                    domain = domain.replace("www.", "")
+                    raw_text = ""
+                    if "text" in content_type:  # aunque se descartan ciertas extensiones pueden venir datos en formatos no deseados
+                        raw_text = response.text
+                        # calcula el crc para ver si ha cambiado lo que hay en la bd
+
+                        soup = BeautifulSoup(raw_text, 'html.parser')
+                        titulo, texto = self.clean_html(soup)
+                        new_crc = zlib.crc32(texto.encode('utf-8'))
+                        # si no es pdf busca los enlaces y los añadimos a la lista de url a procesar
+                        for url_temp in self.get_linked_urls(url, soup):
+                            try:
+                                if url_temp is not None and domain in url_temp:
+                                    domain_temp = urlparse(url_temp).netloc
+                                    domain_temp = domain_temp.replace("www.", "")
+                                    if domain == domain_temp:
+                                        self.add_url_to_visit(url_temp)
+                            except Exception as e:
+                                logging.exception(f"Error while processing URL {url_temp}: {e}")
+                    elif "pdf" in content_type:
+                        # calcula el crc para ver si ha cambiado lo que hay en la bd
+                        try:
+                            content_length = str(headers['content-length'])
+                            if int(str(content_length)) < 1024 * 1024:  # solo procesamos los pdf menores de 1MB
+                                new_crc = zlib.crc32(response.content)
+                            else:
+                                logging.info("Archivo pdf descartado")
+                                return
+                        except Exception as e:
+                            logging.exception(f"Error while processing PDF content length for URL {url}: {e}")
+                            return
+                    else:
+                        return
+                    # comprueba en la bd si ha habido cambios
+                    # si no existe se devuelve true 
+                    has_changed = self.check_webpage_changes(new_crc, sector, uri_id)
+
+                    self.processed = self.processed + 1
+
+                    if has_changed:
+                        # extrae el contenido
+                        if "pdf" in content_type:
+                            titulo, texto = self.pdf_to_text(response.content)
+
+                            # resume el contenido
+                        summary = self.summarize_text(texto)
+                        summary = summary.replace("\n", " ")
+                        summary = re.sub(' +', ' ', summary)  # eliminamos los espacios multiples
+                        # borra los datos antiguos
+                        
+                        #!!!
+                        #self.delete_old_values(sector, uri_id)
+                        # inserta los nuevos datos  
+                        logging.info(self.insert_data(uri_id, sector, url, new_crc, titulo, summary, texto))
+                        self.added = self.added + 1
+            except Exception as e:
+                logging.exception(f"Error during crawling URL {url}: {e}")
                 
     def run(self):
-        while self.urls_to_visit:
-            url = self.urls_to_visit.pop(0)
-            try:
-                logging.info(f'Crawling: {url}')
 
-                self.crawl(url)
-                logging.info(f'pending url: {len(self.urls_to_visit)}')
-            except Exception:
-                logging.info(f'EXCEPTION  Failed to crawl: {url}')
-                logging.exception(f'Failed to crawl: {url}')
-            finally:
-                self.visited_urls.append(url)
-        self.endtime = time.time()
-        logging.info(f'SUMMARY:  processed: {self.processed}  added:{self.added}')
-        logging.info(f'TIME:  {str(self.endtime - self.starttime)} seconds')
+        OpenTelemetryConfig.initialize(
+            service_name="CrawlerService",
+            jaeger_endpoint=os.getenv('JAEGER_ENDPOINT')
+        )
+        tracer = OpenTelemetryConfig.get_tracer()
+
+        meter = OpenTelemetryConfig.get_meter()
+
+        urls_processed_counter = meter.create_counter(
+            "urls_processed",
+            description="Número total de URLs procesadas exitosamente."
+        )
+        crawl_errors_counter = meter.create_counter(
+            "crawl_errors",
+            description="Número total de errores durante el crawl."
+        )
+
+        with tracer.start_as_current_span("Init crawl") as span:
+                
+            try:
+                while self.urls_to_visit:
+                    try:
+                        url = self.urls_to_visit.pop(0)
+                        logging.info(f'Crawling: {url}')
+
+                        self.crawl(url)
+                        urls_processed_counter.add(1, {"url": url})
+
+                        logging.info(f'pending url: {len(self.urls_to_visit)}')
+                    except Exception:
+                        crawl_errors_counter.add(1, {"url": url})
+                        span.add_event(
+                            "Crawl Error",
+                            {"url": url, "error.message": str(e)}
+                        )
+
+                        logging.info(f'EXCEPTION  Failed to crawl: {url}')
+                        logging.exception(f'Failed to crawl: {url}')
+                    finally:
+                        self.visited_urls.append(url)
+                self.endtime = time.time()
+
+                span.set_attribute("urls_processed_total", len(self.visited_urls))
+                span.set_attribute("errors_total", crawl_errors_counter)
+
+                span.set_attribute("processes", self.processed)
+                span.set_attribute("added", self.added)
+
+                span.set_attribute("starttime", self.starttime)
+                span.set_attribute("endtime", self.endtime)
+                span.set_attribute("total time", self.endtime - self.starttime)
+
+                span.add_event(
+                    "Crawler Summary",
+                    {
+                        "processed": len(self.visited_urls),
+                        "errors": crawl_errors_counter,
+                        "total_time": total_time,
+                    },
+                )
+
+                logging.info(f'SUMMARY:  processed: {self.processed}  added:{self.added}')
+                logging.info(f'TIME:  {str(self.endtime - self.starttime)} seconds')
+
+            except Exception as e:
+                span.record_exception(e)
+                span.set_status(trace.Status(trace.StatusCode.ERROR, str(e)))
+                logging.exception("Critical error during crawl execution.")
 
 
 if __name__ == '__main__':

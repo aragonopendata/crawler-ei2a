@@ -1,2 +1,6 @@
 *.env
 __pycache__/
+
+.scannerwork
+
+.DS_Store
