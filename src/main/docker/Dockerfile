@@ -1,29 +1,13 @@
 FROM python:3.8
-#https://medium.com/@DahlitzF/run-python-applications-as-non-root-user-in-docker-containers-by-example-cba46a0ff384
 
+WORKDIR /app
 
-#RUN pip3 install --upgrade pip
+RUN ulimit -a && cat /proc/self/limits
 
-#RUN adduser worker
-RUN addgroup worker && useradd -g worker worker
-WORKDIR /home/worker
-
-
-COPY ./src/main/python/ /home/worker/
-
-
-RUN chown worker:worker /home/worker/ -R
-USER worker
-
-ENV PATH="/home/worker/.local/bin:${PATH}"
+COPY ./src/main/python/requirements.txt /app/requirements.txt
+ENV PATH="/root/.local/bin:${PATH}"
 ENV PYTHONPATH=.:$PYTHONPATH
+RUN pip3  install  --user --progress-bar off -r /app/requirements.txt
 
-RUN pip config --user set global.progress_bar off
-
-RUN pip3 install --user --no-cache-dir --no-use-pep517 -r /home/worker/requirements.txt
-
-RUN python3 --version
-
-USER worker 
-
-CMD [ "python3", "crawler.py"]
+CMD ["sleep", "infinity"]
+#CMD [ "python3", "crawler.py"]
