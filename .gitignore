@@ -3,7 +3,7 @@ __pycache__/
 
 .scannerwork
 
-*/.DS_Store
+.DS_Store
 
 *copy*
 

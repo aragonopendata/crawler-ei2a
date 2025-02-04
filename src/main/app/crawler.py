@@ -153,7 +153,6 @@ class Crawler:
             logging.exception("Error during linked URL extraction")
         finally:
             elapsed = time.time() - start_time
-            self.link_extraction_time.record(elapsed)
 
     def add_url_to_visit(self, url):
         if url is not None:
@@ -270,9 +269,6 @@ class Crawler:
                 span.set_status(StatusCode.OK)
 
                 elapsed = time.time() - start_time
-                
-                self.summarize_execution_time.record(elapsed)
-
                 span.set_attribute("time", elapsed)
 
                 return summary_text.replace("'", " ")
@@ -308,7 +304,6 @@ class Crawler:
                 span.set_status(StatusCode.OK)
 
                 elapsed = time.time() - start_time
-                self.pdf_extraction_time.record(elapsed)
                 return title, all_pages
             
             except Exception as e:
@@ -332,7 +327,6 @@ class Crawler:
 
             if lines is not None and len(lines) > 0:
                 oldcrc = lines[0]["crc"]["value"]
-                span.set_attribute("old_crc", oldcrc)
 
             if oldcrc == str(newcrc):
                 has_changed = False
@@ -342,7 +336,6 @@ class Crawler:
             logging.exception(f"Error while checking webpage changes for uri_id={uri_id}, sector={sector}")
 
         elapsed = time.time() - start_time
-        self.check_webpage_changes_execution_time.record(elapsed, {"sector": sector})
 
         return has_changed
 
@@ -364,7 +357,6 @@ class Crawler:
                                 self.querystring, query)
 
                 execution_time = time.time() - start_time
-                self.delete_old_values_execution_time.record(execution_time, {"operation": "delete", "sector": sector})
 
                 span.set_attribute("query", query)
                 span.add_event("SPARQL Delete Operation Done")
@@ -445,8 +437,6 @@ class Crawler:
                 )
 
                 execution_time = time.time() - start_time
-                self.insert_execution_time.record(execution_time, {"sector": sector})
-                self.successful_insertions.add(1, {"sector": sector})
 
                 span.set_attribute("execution_time_seconds", execution_time)
                 span.set_status(StatusCode.OK)
@@ -461,18 +451,11 @@ class Crawler:
 
             finally:
                 total_elapsed = time.time() - start_time
-                self.insert_data_time.record(total_elapsed, {"sector": sector})
 
         #query = f"{query} }} }}"
         #return (self.sparql_helper.insertdata(self.sparql_user, self.sparql_pass, self.sparql_server, self.sparql_path_auth,self.querystring, query))
 
     def crawl(self, url):
-
-        if not hasattr(self, 'crawl_time'):
-            self.crawl_time = self.meter.create_histogram(
-                "crawl_execution_time",
-                description="Tiempo de ejecución de la función crawl(url) en segundos"
-            )
 
         crawl_start = time.time()
 
@@ -558,15 +541,8 @@ class Crawler:
                 logging.exception(f"Error during crawling URL {url}: {e}")
             finally:
                 elapsed = time.time() - crawl_start
-                self.crawl_time.record(elapsed, {"url": url})
                 
     def run(self):
-
-        if not hasattr(self, 'total_run_time'):
-            self.total_run_time = self.meter.create_histogram(
-                "crawler_run_execution_time",
-                description="Tiempo total de ejecución del run() del crawler en segundos"
-            )
 
         start_time = time.time()
 
@@ -595,7 +571,6 @@ class Crawler:
             logging.exception("Critical error during crawl execution.")
         finally:
             total_elapsed = time.time() - start_time
-            self.total_run_time.record(total_elapsed)
 
 
 if __name__ == '__main__':
