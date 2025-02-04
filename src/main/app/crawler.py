@@ -56,88 +56,12 @@ class Crawler:
 
         OpenTelemetryConfig.initialize(
             service_name="CrawlerService",
-            jaeger_endpoint=self.jaeger_endpoint,
-            apm_endpoint=self.apm_endpoint
+            #jaeger_endpoint=self.jaeger_endpoint,
+            otlp_endpoint=self.apm_endpoint
         )
         self.tracer = OpenTelemetryConfig.get_tracer()
 
         self.meter = OpenTelemetryConfig.get_meter("CrawlerService", "1.0.0")
-    
-        # self.insertion_counter = self.meter.create_counter(
-        #     "successful_insertions",
-        #     description="Número de inserciones exitosas en Virtuoso."
-        # )
-        # self.error_counter = self.meter.create_counter(
-        #     "query_errors",
-        #     description="Número de errores durante la construcción de las queries SPARQL."
-        # )
-        # self.execution_histogram = self.meter.create_histogram(
-        #     "execution_time",
-        #     description="Tiempo de ejecución de la función insert_data en segundos."
-        # )
-
-        # self.urls_loaded_count = self.meter.create_counter(
-        #     "urls_loaded_count",
-        #     description="Número de URLs cargadas al iniciar el crawler."
-        # )
-        # self.load_urls_execution_time = self.meter.create_histogram(
-        #     "load_urls_execution_time",
-        #     description="Tiempo de ejecución de la función load_urls en segundos."
-        # )
-        # self.load_data_execution_time = self.meter.create_histogram(
-        #     "load_data_execution_time",
-        #     description="Tiempo de ejecución de la función load_data en segundos."
-        # )
-        # self.sparql_results_count = self.meter.create_counter(
-        #     "sparql_results_count",
-        #     description="Número total de resultados devueltos por las consultas SPARQL."
-        # )
-
-        # self.link_extraction_time = self.meter.create_histogram(
-        #     "link_extraction_time",
-        #     description="Tiempo de extracción de enlaces de una página"
-        # )
-        # self.links_found_count = self.meter.create_counter(
-        #     "links_found_count",
-        #     description="Número de enlaces encontrados a lo largo de todo el crawling"
-        # )
-
-        # self.urls_accepted_count = self.meter.create_counter(
-        #     "urls_accepted_count",
-        #     description="Número de URLs añadidas a la lista de visita"
-        # )
-
-        # self.urls_rejected_count = self.meter.create_counter(
-        #     "urls_rejected_count",
-        #     description="Número de URLs rechazadas y no visitadas"
-        # )
-
-        # self.clean_html_time = self.meter.create_histogram(
-        #     "clean_html_execution_time",
-        #     description="Tiempo de ejecución de la limpieza de HTML en segundos"
-        # )
-        # self.cleaned_html_count = self.meter.create_counter(
-        #     "cleaned_html_count",
-        #     description="Número de documentos HTML limpiados"
-        # )
-
-        # self.summarize_time = self.meter.create_histogram(
-        #     "summarize_execution_time",
-        #     description="Tiempo de ejecución del resumen de texto"
-        # )
-
-        # self.pdf_extraction_time = self.meter.create_histogram(
-        #     "pdf_extraction_time",
-        #     description="Tiempo de extracción de texto de PDFs"
-        # )
-        # self.pdf_processed_count = self.meter.create_counter(
-        #     "pdf_processed_count",
-        #     description="Número de PDFs procesados"
-        # )
-        # self.pdf_pages_count = self.meter.create_counter(
-        #     "pdf_pages_count",
-        #     description="Número total de páginas extraídas de PDFs"
-        # )
 
         self.setup_metrics()
 
@@ -148,9 +72,11 @@ class Crawler:
 
     def setup_metrics(self):
         counters_def = [
+            
             ("successful_insertions", "Número de inserciones exitosas en Virtuoso."),
+            # apm ya saca los errores
             ("query_errors", "Número de errores durante la construcción de las queries SPARQL."),
-            ("urls_loaded_count", "Número de URLs cargadas al iniciar el crawler."),
+            #("urls_loaded_count", "Número de URLs cargadas al iniciar el crawler."),
             ("sparql_results_count", "Número total de resultados devueltos por las consultas SPARQL."),
             ("links_found_count", "Número de enlaces encontrados a lo largo de todo el crawling"),
             ("urls_accepted_count", "Número de URLs añadidas a la lista de visita"),
@@ -170,7 +96,7 @@ class Crawler:
 
         histograms_def = [
             ("insert_execution_time", "Tiempo de ejecución de la función insert_data en segundos."),
-            ("load_urls_execution_time", "Tiempo de ejecución de la función load_urls en segundos."),
+            #("load_urls_execution_time", "Tiempo de ejecución de la función load_urls en segundos."),
             ("load_data_execution_time", "Tiempo de ejecución de la función load_data en segundos."),
             ("link_extraction_time", "Tiempo de extracción de enlaces de una página"),
             ("clean_html_execution_time", "Tiempo de ejecución de la limpieza de HTML en segundos"),
@@ -213,7 +139,7 @@ class Crawler:
             # span.set_attribute("total_urls_loaded", len(self.urls_to_visit))
             # span.set_status(Status(StatusCode.OK))
 
-            self.urls_loaded_count.add(len(self.urls_to_visit))
+            #self.urls_loaded_count.add(len(self.urls_to_visit))
 
         except Exception as e:
             # span.record_exception(e)
@@ -278,33 +204,33 @@ class Crawler:
     #@staticmethod
     def get_linked_urls(self, url, soup):
         start_time = time.time()
-        with self.tracer.start_as_current_span("Get Linked URLs") as span:
-            try:
-                span.set_attribute("base_url", url)
-                total_links = 0
-                linked_urls = []
+        #with self.tracer.start_as_current_span("Get Linked URLs") as span:
+        try:
+            #span.set_attribute("base_url", url)
+            total_links = 0
+            linked_urls = []
 
-                for link in soup.find_all('a'):
-                    path = link.get('href')
-                    if path and path.startswith('/') and url.startswith('http'):
-                        path = urljoin(url, path)
-                        total_links += 1
-                        linked_urls.append(path)
-                    yield path
+            for link in soup.find_all('a'):
+                path = link.get('href')
+                if path and path.startswith('/') and url.startswith('http'):
+                    path = urljoin(url, path)
+                    total_links += 1
+                    linked_urls.append(path)
+                yield path
 
-                span.set_attribute("total_links", total_links)
-                span.set_attribute("linked_urls", linked_urls)
-                span.set_status(StatusCode.OK)
+            # span.set_attribute("total_links", total_links)
+            # span.set_attribute("linked_urls", linked_urls)
+            # span.set_status(StatusCode.OK)
 
-                self.links_found_count.add(total_links)
+            self.links_found_count.add(total_links)
 
-            except Exception as e:
-                span.record_exception(e)
-                span.set_status(Status(StatusCode.ERROR, "Error during URL extraction"))
-                logging.exception("Error during linked URL extraction")
-            finally:
-                elapsed = time.time() - start_time
-                self.link_extraction_time.record(elapsed)
+        except Exception as e:
+            # span.record_exception(e)
+            # span.set_status(Status(StatusCode.ERROR, "Error during URL extraction"))
+            logging.exception("Error during linked URL extraction")
+        finally:
+            elapsed = time.time() - start_time
+            self.link_extraction_time.record(elapsed)
 
     def add_url_to_visit(self, url):
         if url is not None:
@@ -499,49 +425,49 @@ class Crawler:
 
         start_time = time.time()
 
-        with self.tracer.start_as_current_span("Check Webpage Changes") as span:
-            span.set_attribute("uri_id", uri_id)
-            span.set_attribute("sector", sector)
-            span.set_attribute("new_crc", newcrc)
+        # with self.tracer.start_as_current_span("Check Webpage Changes") as span:
+        #     span.set_attribute("uri_id", uri_id)
+        #     span.set_attribute("sector", sector)
+        #     span.set_attribute("new_crc", newcrc)
 
-            oldcrc = 0
+        oldcrc = 0
+        has_changed = True
+        try:
+            query = "PREFIX schema: <http://schema.org/>  PREFIX recurso: <http://opendata.aragon.es/recurso/" + sector + "/documento/webpage/>  select ?crc  from <http://opendata.aragon.es/def/ei2av2> where  {  recurso:" + uri_id + " schema:version   ?crc}"
+
+            #span.add_event("SPARQL Query Constructed", {"query": query})
+
+            data = self.sparql_helper.query(self.sparql_user, self.sparql_pass, self.sparql_server,
+                                        self.sparql_path_auth, self.querystring, query)
+            lines = data["results"]["bindings"]
+
+            if lines is not None and len(lines) > 0:
+                oldcrc = lines[0]["crc"]["value"]
+                span.set_attribute("old_crc", oldcrc)
+
+            if oldcrc == str(newcrc):
+                has_changed = False
+                #span.add_event("No changes detected")
+            # else:
+            #     span.add_event("Changes detected")
+
+            #span.set_status(StatusCode.OK)
+
+        except Exception as e:
             has_changed = True
-            try:
-                query = "PREFIX schema: <http://schema.org/>  PREFIX recurso: <http://opendata.aragon.es/recurso/" + sector + "/documento/webpage/>  select ?crc  from <http://opendata.aragon.es/def/ei2av2> where  {  recurso:" + uri_id + " schema:version   ?crc}"
+            # span.record_exception(e)
+            # span.set_status(Status(StatusCode.ERROR, "Error checking webpage changes"))
+            self.error_counter.add(1, {"operation": "check_webpage", "status": "error"})
+            logging.exception(f"Error while checking webpage changes for uri_id={uri_id}, sector={sector}")
 
-                span.add_event("SPARQL Query Constructed", {"query": query})
+        elapsed = time.time() - start_time
+        self.check_webpage_changes_execution_time.record(elapsed, {"sector": sector})
+        self.changes_checked_count.add(1, {"sector": sector})
+        if has_changed:
+            self.changes_detected_count.add(1, {"sector": sector})
 
-                data = self.sparql_helper.query(self.sparql_user, self.sparql_pass, self.sparql_server,
-                                            self.sparql_path_auth, self.querystring, query)
-                lines = data["results"]["bindings"]
-
-                if lines is not None and len(lines) > 0:
-                    oldcrc = lines[0]["crc"]["value"]
-                    span.set_attribute("old_crc", oldcrc)
-
-                if oldcrc == str(newcrc):
-                    has_changed = False
-                    span.add_event("No changes detected")
-                else:
-                    span.add_event("Changes detected")
-
-                span.set_status(StatusCode.OK)
-
-            except Exception as e:
-                has_changed = True
-                span.record_exception(e)
-                span.set_status(Status(StatusCode.ERROR, "Error checking webpage changes"))
-                self.error_counter.add(1, {"operation": "check_webpage", "status": "error"})
-                logging.exception(f"Error while checking webpage changes for uri_id={uri_id}, sector={sector}")
-
-            elapsed = time.time() - start_time
-            self.check_webpage_changes_execution_time.record(elapsed, {"sector": sector})
-            self.changes_checked_count.add(1, {"sector": sector})
-            if has_changed:
-                self.changes_detected_count.add(1, {"sector": sector})
-
-            span.set_attribute("has_changed", has_changed)
-            return has_changed
+        #span.set_attribute("has_changed", has_changed)
+        return has_changed
 
     def delete_old_values(self, sector, uri_id):
 
@@ -670,7 +596,7 @@ class Crawler:
                 self.insert_data_time.record(total_elapsed, {"sector": sector})
 
         #query = f"{query} }} }}"
-        # return (self.sparql_helper.insertdata(self.sparql_user, self.sparql_pass, self.sparql_server, self.sparql_path_auth,self.querystring, query))
+        #return (self.sparql_helper.insertdata(self.sparql_user, self.sparql_pass, self.sparql_server, self.sparql_path_auth,self.querystring, query))
 
     def crawl(self, url):
 
@@ -710,6 +636,10 @@ class Crawler:
                         raw_text = response.text
                         soup = BeautifulSoup(raw_text, 'html.parser')
                         titulo, texto = self.clean_html(soup)
+                        
+                        span.set_attribute("titulo", titulo)
+                        span.set_attribute("texto", texto)
+
                         new_crc = zlib.crc32(texto.encode('utf-8'))
                         # si no es pdf busca los enlaces y los añadimos a la lista de url a procesar
                         for url_temp in self.get_linked_urls(url, soup):
@@ -738,6 +668,7 @@ class Crawler:
                     # comprueba en la bd si ha habido cambios
                     # si no existe se devuelve true 
                     has_changed = self.check_webpage_changes(new_crc, sector, uri_id)
+                    span.set_attribute("has_changed", has_changed)
 
                     self.processed += 1
 
@@ -774,56 +705,56 @@ class Crawler:
         errors_total = 0
         urls_processed_total = 0 
 
-        with self.tracer.start_as_current_span("Init crawl") as span:
+        #with self.tracer.start_as_current_span("Init crawl") as span:
                 
-            try:
-                while self.urls_to_visit:
-                    try:
-                        url = self.urls_to_visit.pop(0)
-                        self.crawl(url)
-                        self.urls_processed_counter.add(1, {"url": url})
-                        urls_processed_total += 1
-                    except Exception:
-                        self.crawl_errors_counter.add(1, {"url": url})
-                        errors_total += 1
-                        span.add_event(
-                            "Crawl Error",
-                            {"url": url, "error.message": str(e)}
-                        )
+        try:
+            while self.urls_to_visit:
+                try:
+                    url = self.urls_to_visit.pop(0)
+                    self.crawl(url)
+                    self.urls_processed_counter.add(1, {"url": url})
+                    urls_processed_total += 1
+                except Exception:
+                    self.crawl_errors_counter.add(1, {"url": url})
+                    errors_total += 1
+                    # span.add_event(
+                    #     "Crawl Error",
+                    #     {"url": url, "error.message": str(e)}
+                    # )
 
-                        logging.exception(f'Failed to crawl: {url}')
-                    finally:
-                        if url:
-                            self.visited_urls.append(url)
-                self.endtime = time.time()
+                    logging.exception(f'Failed to crawl: {url}')
+                finally:
+                    if url:
+                        self.visited_urls.append(url)
+            self.endtime = time.time()
 
-                span.set_attribute("urls_processed_total", urls_processed_total)
-                span.set_attribute("errors_total", errors_total)
-                span.set_attribute("processes", self.processed)
-                span.set_attribute("added", self.added)
-                span.set_attribute("starttime", self.starttime)
-                span.set_attribute("endtime", self.endtime)
-                span.set_attribute("total_time", self.endtime - self.starttime)
+            # span.set_attribute("urls_processed_total", urls_processed_total)
+            # span.set_attribute("errors_total", errors_total)
+            # span.set_attribute("processes", self.processed)
+            # span.set_attribute("added", self.added)
+            # span.set_attribute("starttime", self.starttime)
+            # span.set_attribute("endtime", self.endtime)
+            # span.set_attribute("total_time", self.endtime - self.starttime)
 
-                span.add_event(
-                    "Crawler Summary",
-                    {
-                        "processed": urls_processed_total,
-                        "errors": errors_total,
-                        "total_time": str(self.endtime - self.starttime),
-                    },
-                )
+            # span.add_event(
+            #     "Crawler Summary",
+            #     {
+            #         "processed": urls_processed_total,
+            #         "errors": errors_total,
+            #         "total_time": str(self.endtime - self.starttime),
+            #     },
+            # )
 
-                logging.info(f'SUMMARY:  processed: {self.processed}  added:{self.added}')
-                logging.info(f'TIME:  {str(self.endtime - self.starttime)} seconds')
+            logging.info(f'SUMMARY:  processed: {self.processed}  added:{self.added}')
+            logging.info(f'TIME:  {str(self.endtime - self.starttime)} seconds')
 
-            except Exception as e:
-                span.record_exception(e)
-                span.set_status(trace.Status(trace.StatusCode.ERROR, str(e)))
-                logging.exception("Critical error during crawl execution.")
-            finally:
-                total_elapsed = time.time() - start_time
-                self.total_run_time.record(total_elapsed)
+        except Exception as e:
+            # span.record_exception(e)
+            # span.set_status(trace.Status(trace.StatusCode.ERROR, str(e)))
+            logging.exception("Critical error during crawl execution.")
+        finally:
+            total_elapsed = time.time() - start_time
+            self.total_run_time.record(total_elapsed)
 
 
 if __name__ == '__main__':
