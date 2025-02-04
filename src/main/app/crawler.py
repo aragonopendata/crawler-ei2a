@@ -56,70 +56,16 @@ class Crawler:
 
         OpenTelemetryConfig.initialize(
             service_name="CrawlerService",
-            #jaeger_endpoint=self.jaeger_endpoint,
             otlp_endpoint=self.apm_endpoint
         )
         self.tracer = OpenTelemetryConfig.get_tracer()
-
-        self.meter = OpenTelemetryConfig.get_meter("CrawlerService", "1.0.0")
-
-        self.setup_metrics()
 
         self.load_urls(cfg.urlsfile)
         self.depth = cfg.depth
         self.load_data()
 
-
-    def setup_metrics(self):
-        counters_def = [
-            
-            ("successful_insertions", "Número de inserciones exitosas en Virtuoso."),
-            # apm ya saca los errores
-            ("query_errors", "Número de errores durante la construcción de las queries SPARQL."),
-            #("urls_loaded_count", "Número de URLs cargadas al iniciar el crawler."),
-            ("sparql_results_count", "Número total de resultados devueltos por las consultas SPARQL."),
-            ("links_found_count", "Número de enlaces encontrados a lo largo de todo el crawling"),
-            ("urls_accepted_count", "Número de URLs añadidas a la lista de visita"),
-            ("urls_rejected_count", "Número de URLs rechazadas y no visitadas"),
-            ("cleaned_html_count", "Número de documentos HTML limpiados"),
-            ("pdf_processed_count", "Número de PDFs procesados"),
-            ("pdf_pages_count", "Número total de páginas extraídas de PDFs"),
-            ("urls_processed", "Número total de URLs procesadas exitosamente"),
-            ("error_counter", "Número total de errores durante el crawl"),
-            ("changes_checked_count", "Número de veces que se comprobó el estado de una página"),
-            ("changes_detected_count", "Número de veces que se detectaron cambios en una página"),
-            ("summaries_count", "Número de textos resumidos"),
-            ("delete_operations_count", "Número de operaciones DELETE ejecutadas"),
-            ("crawl_errors_counter", "Número de errores en crawl"),
-            ("urls_processed_counter", "Número de urls procesadas")  
-        ]
-
-        histograms_def = [
-            ("insert_execution_time", "Tiempo de ejecución de la función insert_data en segundos."),
-            #("load_urls_execution_time", "Tiempo de ejecución de la función load_urls en segundos."),
-            ("load_data_execution_time", "Tiempo de ejecución de la función load_data en segundos."),
-            ("link_extraction_time", "Tiempo de extracción de enlaces de una página"),
-            ("clean_html_execution_time", "Tiempo de ejecución de la limpieza de HTML en segundos"),
-            ("summarize_execution_time", "Tiempo de ejecución del resumen de texto"),
-            ("check_webpage_changes_execution_time", "Tiempo de ejecución de check_webpage_changes en segundos"),
-            ("pdf_extraction_time", "Tiempo de extracción de texto de PDFs"),
-            ("delete_old_values_execution_time", "Tiempo de eliminación de datos antiguos")
-        ]
-
-
-        for name, desc in counters_def:
-            setattr(self, name, self.meter.create_counter(name, description=desc))
-
-        for name, desc in histograms_def:
-            setattr(self, name, self.meter.create_histogram(name, description=desc))
-
-
-        
-
     def load_urls(self, urlsfile):
 
-        # start_time = time.time()
-        # with self.tracer.start_as_current_span("load_urls") as span:
         try:
 
             if os.path.exists(urlsfile):
@@ -135,21 +81,8 @@ class Crawler:
             for url in self.sectores_map:
                 self.urls_to_visit.append(url)
 
-
-            # span.set_attribute("total_urls_loaded", len(self.urls_to_visit))
-            # span.set_status(Status(StatusCode.OK))
-
-            #self.urls_loaded_count.add(len(self.urls_to_visit))
-
         except Exception as e:
-            # span.record_exception(e)
-            # span.set_status(Status(StatusCode.ERROR, "Error loading URLs"))
             logging.exception("Error loading URLs")
-
-            # finally:
-            #     elapsed = time.time() - start_time
-            #     self.load_urls_execution_time.record(elapsed)
-
 
     def load_data(self):
 
@@ -204,9 +137,7 @@ class Crawler:
     #@staticmethod
     def get_linked_urls(self, url, soup):
         start_time = time.time()
-        #with self.tracer.start_as_current_span("Get Linked URLs") as span:
         try:
-            #span.set_attribute("base_url", url)
             total_links = 0
             linked_urls = []
 
@@ -218,15 +149,7 @@ class Crawler:
                     linked_urls.append(path)
                 yield path
 
-            # span.set_attribute("total_links", total_links)
-            # span.set_attribute("linked_urls", linked_urls)
-            # span.set_status(StatusCode.OK)
-
-            self.links_found_count.add(total_links)
-
         except Exception as e:
-            # span.record_exception(e)
-            # span.set_status(Status(StatusCode.ERROR, "Error during URL extraction"))
             logging.exception("Error during linked URL extraction")
         finally:
             elapsed = time.time() - start_time
@@ -242,12 +165,9 @@ class Crawler:
                 if url_dept < self.depth and not url.endswith(
                         ('.csv', '.xls', '.xlsx', '.jpg', '.png', '.gif', '.css', '.xml', '.mp3', '.mp4')):
                     self.urls_to_visit.append(url)
-                    self.urls_accepted_count.add(1)
                 else:
                     self.no_visit.append(url)
-                    self.urls_rejected_count.add(1)
-            else:
-                self.urls_rejected_count.add(1)
+
 
     def check_no_visit_def(self, url):
         for nv in self.no_visit_default:
@@ -262,8 +182,6 @@ class Crawler:
                     div.decompose()
 
     def clean_html(self, soup):
-        # start_time = time.time()
-        # with self.tracer.start_as_current_span("Clean HTML") as span:
         try:
 
             tit = soup.find('title')
@@ -272,7 +190,6 @@ class Crawler:
             if tit is not None:
                 title = tit.string
                 tit.decompose()
-                #span.set_attribute("title_length", len(title))
 
             tags = ["footer", "header", "nav", "form", "style", "meta", "script"]
             for tag in tags:
@@ -292,29 +209,15 @@ class Crawler:
             texto = '. '.join(soup.stripped_strings)
             texto = texto.replace("..", ".")
 
-            # span.set_attribute("text_length", len(texto))
-            # span.set_status(StatusCode.OK)
-
-            # self.cleaned_html_count.add(1)
-            #elapsed = time.time() - start_time
-            # self.clean_html_execution_time.record(elapsed)
-
             return title, texto
 
         except Exception as e:
-            # span.record_exception(e)
-            # span.set_status(Status(StatusCode.ERROR, "Error during HTML cleaning"))
             logging.exception("Error during HTML cleaning")
             return None, None
 
     def build_uri_id(self, url):
 
-        # with self.tracer.start_as_current_span("Build URI ID") as span:
-        #     span.set_attribute("url", url)
-
         try:
-            #span.add_event("Starting URI ID generation")
-
             # usamos este diccionario para acortar la longitud de la url codificada
             diccionario = {"https://transparencia.aragon.es": "11",
                         "https://www.saludinforma.es": "12",
@@ -330,7 +233,6 @@ class Crawler:
                 for key in self.sectores_map:
                     if url.startswith(key):
                         sector_temp = self.sectores_map[key]
-                        #span.add_event("Sector determined", {"sector": sector_temp})
                         break
 
             path_input_string = url
@@ -344,8 +246,6 @@ class Crawler:
             return uri_temp, sector_temp
 
         except Exception as e:
-            # span.record_exception(e)
-            # span.set_status(Status(StatusCode.ERROR, "Error generating URI ID"))
             logging.exception(f"Error generating URI ID for URL {url}")
             return None, None
 
@@ -371,9 +271,7 @@ class Crawler:
 
                 elapsed = time.time() - start_time
                 
-
                 self.summarize_execution_time.record(elapsed)
-                self.summaries_count.add(1)
 
                 span.set_attribute("time", elapsed)
 
@@ -411,8 +309,6 @@ class Crawler:
 
                 elapsed = time.time() - start_time
                 self.pdf_extraction_time.record(elapsed)
-                self.pdf_processed_count.add(1)
-                self.pdf_pages_count.add(num_pages)
                 return title, all_pages
             
             except Exception as e:
@@ -425,17 +321,10 @@ class Crawler:
 
         start_time = time.time()
 
-        # with self.tracer.start_as_current_span("Check Webpage Changes") as span:
-        #     span.set_attribute("uri_id", uri_id)
-        #     span.set_attribute("sector", sector)
-        #     span.set_attribute("new_crc", newcrc)
-
         oldcrc = 0
         has_changed = True
         try:
             query = "PREFIX schema: <http://schema.org/>  PREFIX recurso: <http://opendata.aragon.es/recurso/" + sector + "/documento/webpage/>  select ?crc  from <http://opendata.aragon.es/def/ei2av2> where  {  recurso:" + uri_id + " schema:version   ?crc}"
-
-            #span.add_event("SPARQL Query Constructed", {"query": query})
 
             data = self.sparql_helper.query(self.sparql_user, self.sparql_pass, self.sparql_server,
                                         self.sparql_path_auth, self.querystring, query)
@@ -447,26 +336,14 @@ class Crawler:
 
             if oldcrc == str(newcrc):
                 has_changed = False
-                #span.add_event("No changes detected")
-            # else:
-            #     span.add_event("Changes detected")
-
-            #span.set_status(StatusCode.OK)
 
         except Exception as e:
             has_changed = True
-            # span.record_exception(e)
-            # span.set_status(Status(StatusCode.ERROR, "Error checking webpage changes"))
-            self.error_counter.add(1, {"operation": "check_webpage", "status": "error"})
             logging.exception(f"Error while checking webpage changes for uri_id={uri_id}, sector={sector}")
 
         elapsed = time.time() - start_time
         self.check_webpage_changes_execution_time.record(elapsed, {"sector": sector})
-        self.changes_checked_count.add(1, {"sector": sector})
-        if has_changed:
-            self.changes_detected_count.add(1, {"sector": sector})
 
-        #span.set_attribute("has_changed", has_changed)
         return has_changed
 
     def delete_old_values(self, sector, uri_id):
@@ -488,7 +365,6 @@ class Crawler:
 
                 execution_time = time.time() - start_time
                 self.delete_old_values_execution_time.record(execution_time, {"operation": "delete", "sector": sector})
-                self.delete_operations_count.add(1, {"operation": "delete", "sector": sector})
 
                 span.set_attribute("query", query)
                 span.add_event("SPARQL Delete Operation Done")
@@ -498,18 +374,12 @@ class Crawler:
                 #logging.info(f"Successfully deleted old values for sector={sector}, uri_id={uri_id}")
 
             except Exception as e:
-                self.error_counter.add(1, {"operation": "delete", "sector": sector})
                 span.record_exception(e)
                 span.set_status(Status(StatusCode.ERROR, "Error during SPARQL delete operation"))
                 logging.exception(f"Error while deleting old values for sector={sector}, uri_id={uri_id}: {e}")
 
     def insert_data(self, uri_id, sector, url, crc, title, summary, texto):
 
-        if not hasattr(self, 'insert_data_time'):
-            self.insert_data_time = self.meter.create_histogram(
-                "insert_data_execution_time",
-                description="Tiempo de ejecución de la inserción de datos SPARQL en segundos"
-            )
 
         start_time = time.time()
 
@@ -557,7 +427,6 @@ class Crawler:
 
             except Exception as e:
                 logging.exception(f"Error {e} while constructing the SPARQL query: {query}")
-                self.error_counter.add(1, {"sector": sector})
                 span.record_exception(e)
                 span.set_status(Status(StatusCode.ERROR, "Error constructing SPARQL query"))
                 return None
@@ -585,7 +454,6 @@ class Crawler:
                 return result
 
             except Exception as e:
-                self.error_counter.add(1, {"sector": sector})
                 span.record_exception(e)
                 span.set_status(Status(StatusCode.ERROR, "Error inserting data into Virtuoso"))
                 logging.exception(f"Error {e} while inserting SPARQL data")
@@ -705,52 +573,25 @@ class Crawler:
         errors_total = 0
         urls_processed_total = 0 
 
-        #with self.tracer.start_as_current_span("Init crawl") as span:
                 
         try:
             while self.urls_to_visit:
                 try:
                     url = self.urls_to_visit.pop(0)
                     self.crawl(url)
-                    self.urls_processed_counter.add(1, {"url": url})
                     urls_processed_total += 1
                 except Exception:
-                    self.crawl_errors_counter.add(1, {"url": url})
                     errors_total += 1
-                    # span.add_event(
-                    #     "Crawl Error",
-                    #     {"url": url, "error.message": str(e)}
-                    # )
-
                     logging.exception(f'Failed to crawl: {url}')
                 finally:
                     if url:
                         self.visited_urls.append(url)
             self.endtime = time.time()
 
-            # span.set_attribute("urls_processed_total", urls_processed_total)
-            # span.set_attribute("errors_total", errors_total)
-            # span.set_attribute("processes", self.processed)
-            # span.set_attribute("added", self.added)
-            # span.set_attribute("starttime", self.starttime)
-            # span.set_attribute("endtime", self.endtime)
-            # span.set_attribute("total_time", self.endtime - self.starttime)
-
-            # span.add_event(
-            #     "Crawler Summary",
-            #     {
-            #         "processed": urls_processed_total,
-            #         "errors": errors_total,
-            #         "total_time": str(self.endtime - self.starttime),
-            #     },
-            # )
-
             logging.info(f'SUMMARY:  processed: {self.processed}  added:{self.added}')
             logging.info(f'TIME:  {str(self.endtime - self.starttime)} seconds')
 
         except Exception as e:
-            # span.record_exception(e)
-            # span.set_status(trace.Status(trace.StatusCode.ERROR, str(e)))
             logging.exception("Critical error during crawl execution.")
         finally:
             total_elapsed = time.time() - start_time

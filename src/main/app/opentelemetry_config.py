@@ -50,27 +50,16 @@ class OpenTelemetryConfig:
 
         # -- METRICS --
         # Crea un exporter OTLP (gRPC) para métricas
-        metric_exporter = OTLPMetricExporter(endpoint=otlp_endpoint, insecure=True)
+        # metric_exporter = OTLPMetricExporter(endpoint=otlp_endpoint, insecure=True)
         #metric_reader = PeriodicExportingMetricReader(metric_exporter)
-        metric_reader = PeriodicExportingMetricReader(
-            OTLPMetricExporter(endpoint=otlp_endpoint, insecure=True),
-            export_interval_millis=15000,  # Enviar cada 15 segundos (default=60000)
-        )
-        meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
-        
-        metrics.set_meter_provider(meter_provider)
-        OpenTelemetryConfig.meter_provider = meter_provider
-
-        # Instrumentaciones de librerías
-        #RequestsInstrumentor().instrument()
-        #LoggingInstrumentor().instrument(set_logging_format=True)
-
-
-        # RequestsInstrumentor().instrument(
-        #     tracer_provider=tracer_provider,
-        #     suppress_instrumentation=True,  # Evitar ruido innecesario
-        #     excluded_urls=".*healthcheck.*",  # Excluir endpoints triviales
+        # metric_reader = PeriodicExportingMetricReader(
+        #     OTLPMetricExporter(endpoint=otlp_endpoint, insecure=True),
+        #     export_interval_millis=15000,  # Enviar cada 15 segundos (default=60000)
         # )
+        # meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
+        
+        # metrics.set_meter_provider(meter_provider)
+        # OpenTelemetryConfig.meter_provider = meter_provider
 
     @staticmethod
     def get_tracer():
