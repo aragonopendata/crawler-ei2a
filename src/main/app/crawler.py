@@ -1,6 +1,6 @@
 import base64
 import csv
-import logging
+# import logger
 import os.path
 import re
 import time
@@ -24,12 +24,63 @@ from opentelemetry.trace.status import Status, StatusCode
 from opentelemetry import trace
 from opentelemetry.trace import Status, StatusCode
 
-load_dotenv()
-logging.basicConfig(
-    format='%(asctime)s %(levelname)s:%(message)s',
-    level=logging.ERROR
-)
 
+
+import json
+from opentelemetry import trace
+import logging
+
+def setup_structured_logging():
+    """
+    Configura logging estructurado que correlaciona con las trazas de OpenTelemetry
+    """
+    class JsonFormatter(logging.Formatter):
+        def format(self, record):
+            # Obtener el contexto de la traza actual si está disponible
+            current_span = trace.get_current_span()
+            span_context = current_span.get_span_context() if current_span else None
+            
+            # Convertir trace_id y span_id a formato hexadecimal si están disponibles
+            trace_id = f"{span_context.trace_id:032x}" if span_context and span_context.trace_id else ""
+            span_id = f"{span_context.span_id:016x}" if span_context and span_context.span_id else ""
+            
+            log_record = {
+                "timestamp": datetime.utcnow().isoformat(),
+                "level": record.levelname,
+                "logger": record.name,
+                "message": record.getMessage(),
+                "trace_id": trace_id,
+                "span_id": span_id
+            }
+            
+            # Incluir excepciones si las hay
+            if record.exc_info:
+                log_record["exception"] = self.formatException(record.exc_info)
+            
+            # Incluir información adicional si existe
+            if hasattr(record, 'url'):
+                log_record["url"] = record.url
+            if hasattr(record, 'uri_id'):
+                log_record["uri_id"] = record.uri_id
+            if hasattr(record, 'sector'):
+                log_record["sector"] = record.sector
+            
+            return json.dumps(log_record)
+    
+    # Crear handler con formato JSON
+    json_handler = logging.StreamHandler()
+    json_handler.setFormatter(JsonFormatter())
+    
+    # Configurar logger raíz
+    root_logger = logging.getLogger()
+    root_logger.handlers = [json_handler]  # Reemplazar handlers existentes
+    root_logger.setLevel(logging.INFO)
+    
+    return root_logger
+
+
+load_dotenv()
+logger = setup_structured_logging()
 
 class Crawler:
 
@@ -59,6 +110,58 @@ class Crawler:
             otlp_endpoint=self.apm_endpoint
         )
         self.tracer = OpenTelemetryConfig.get_tracer()
+        self.meter = OpenTelemetryConfig.get_meter("crawler_metrics")
+
+        self.urls_processed_counter = self.meter.create_counter(
+            "urls_processed",
+            description="Número de URLs procesadas",
+            unit="1"
+        )
+        
+        self.urls_changed_counter = self.meter.create_counter(
+            "urls_changed",
+            description="Número de URLs que han cambiado y se han actualizado",
+            unit="1"
+        )
+        
+        self.sparql_errors_counter = self.meter.create_counter(
+            "sparql_errors",
+            description="Número de errores SPARQL durante inserciones",
+            unit="1"
+        )
+        
+        # Histograma para tiempos de procesamiento
+        self.crawl_duration = self.meter.create_histogram(
+            "crawl_duration",
+            description="Tiempo de procesamiento de cada URL",
+            unit="s"
+        )
+
+        # Métricas para operaciones SPARQL
+        self.sparql_operation_counter = self.meter.create_counter(
+            "sparql_operations",
+            description="Número de operaciones SPARQL ejecutadas",
+            unit="1"
+        )
+
+        self.sparql_error_counter = self.meter.create_counter(
+            "sparql_errors",
+            description="Número de errores SPARQL",
+            unit="1"
+        )
+
+        self.sparql_operation_duration = self.meter.create_histogram(
+            "sparql_operation_duration",
+            description="Tiempo de ejecución de operaciones SPARQL",
+            unit="s"
+        )
+
+        # Agregador para urls procesadas por sector
+        self.urls_by_sector = self.meter.create_up_down_counter(
+            "urls_by_sector",
+            description="Número de URLs procesadas por sector",
+            unit="1"
+        )
 
         self.load_urls(cfg.urlsfile)
         self.depth = cfg.depth
@@ -82,7 +185,7 @@ class Crawler:
                 self.urls_to_visit.append(url)
 
         except Exception as e:
-            logging.exception("Error loading URLs")
+            logger.exception("Error loading URLs")
 
     def load_data(self):
 
@@ -150,7 +253,7 @@ class Crawler:
                 yield path
 
         except Exception as e:
-            logging.exception("Error during linked URL extraction")
+            logger.exception("Error during linked URL extraction")
         finally:
             elapsed = time.time() - start_time
 
@@ -211,7 +314,7 @@ class Crawler:
             return title, texto
 
         except Exception as e:
-            logging.exception("Error during HTML cleaning")
+            logger.exception("Error during HTML cleaning")
             return None, None
 
     def build_uri_id(self, url):
@@ -245,7 +348,7 @@ class Crawler:
             return uri_temp, sector_temp
 
         except Exception as e:
-            logging.exception(f"Error generating URI ID for URL {url}")
+            logger.exception(f"Error generating URI ID for URL {url}")
             return None, None
 
     def summarize_text(self, html):
@@ -276,7 +379,7 @@ class Crawler:
             except Exception as e:
                 span.record_exception(e)
                 span.set_status(Status(StatusCode.ERROR, "Error during text summarization"))
-                logging.exception("Error during text summarization")
+                logger.exception("Error during text summarization")
                 return ""
 
     def pdf_to_text(self, content):
@@ -309,69 +412,83 @@ class Crawler:
             except Exception as e:
                 span.record_exception(e)
                 span.set_status(Status(StatusCode.ERROR, "Error extracting PDF text"))
-                logging.exception("Error during PDF text extraction")
+                logger.exception("Error during PDF text extraction")
                 return None, None
 
     def check_webpage_changes(self, newcrc, sector, uri_id):
-
-        start_time = time.time()
-
-        oldcrc = 0
-        has_changed = True
-        try:
-            query = "PREFIX schema: <http://schema.org/>  PREFIX recurso: <http://opendata.aragon.es/recurso/" + sector + "/documento/webpage/>  select ?crc  from <http://opendata.aragon.es/def/ei2av2> where  {  recurso:" + uri_id + " schema:version   ?crc}"
-
-            data = self.sparql_helper.query(self.sparql_user, self.sparql_pass, self.sparql_server,
-                                        self.sparql_path_auth, self.querystring, query)
-            lines = data["results"]["bindings"]
-
-            if lines is not None and len(lines) > 0:
-                oldcrc = lines[0]["crc"]["value"]
-
-            if oldcrc == str(newcrc):
-                has_changed = False
-
-        except Exception as e:
+        with self.tracer.start_as_current_span("Check Webpage Changes") as span:
+            span.set_attribute("uri_id", uri_id)
+            span.set_attribute("sector", sector)
+            span.set_attribute("new_crc", newcrc)
+            
+            start_time = time.time()
+            oldcrc = 0
             has_changed = True
-            logging.exception(f"Error while checking webpage changes for uri_id={uri_id}, sector={sector}")
-
-        elapsed = time.time() - start_time
-
-        return has_changed
+            
+            try:
+                query = f"""PREFIX schema: <http://schema.org/>  
+                        PREFIX recurso: <http://opendata.aragon.es/recurso/{sector}/documento/webpage/>  
+                        SELECT ?crc FROM <http://opendata.aragon.es/def/ei2av2> 
+                        WHERE {{ recurso:{uri_id} schema:version ?crc }}"""
+                
+                params = {"uri_id": uri_id, "sector": sector}
+                
+                # Usar nuestro helper para la consulta
+                data = self.sparql_helper_with_tracing("query", query, params)
+                
+                lines = data["results"]["bindings"]
+                
+                if lines is not None and len(lines) > 0:
+                    oldcrc = lines[0]["crc"]["value"]
+                    span.set_attribute("old_crc", oldcrc)
+                
+                if oldcrc == str(newcrc):
+                    has_changed = False
+                
+                span.set_attribute("has_changed", has_changed)
+                return has_changed
+                
+            except Exception as e:
+                has_changed = True  # En caso de error, asumimos que ha cambiado
+                span.record_exception(e)
+                span.set_attribute("error", str(e))
+                span.set_status(Status(StatusCode.ERROR, f"Error checking webpage changes: {str(e)}"))
+                logger.error(f"Error checking webpage changes", 
+                            exc_info=True,
+                            extra={"uri_id": uri_id, "sector": sector})
+                return has_changed
+                
+            finally:
+                elapsed = time.time() - start_time
+                span.set_attribute("duration_seconds", elapsed)
 
     def delete_old_values(self, sector, uri_id):
-
-
         with self.tracer.start_as_current_span("Delete Old Values") as span:
-            span.set_attribute("sector", sector)
             span.set_attribute("uri_id", uri_id)
-
-            query = "PREFIX recurso: <http://opendata.aragon.es/recurso/" + sector + "/documento/webpage/> DELETE WHERE { GRAPH <http://opendata.aragon.es/def/ei2av2> {recurso:" + uri_id + " ?x ?y } }"
-            span.add_event("SPARQL Query Constructed", {"query_length": len(query)})
-
+            span.set_attribute("sector", sector)
+            
+            query = f"""PREFIX recurso: <http://opendata.aragon.es/recurso/{sector}/documento/webpage/> 
+                    DELETE WHERE {{ 
+                        GRAPH <http://opendata.aragon.es/def/ei2av2> {{
+                            recurso:{uri_id} ?x ?y 
+                        }} 
+                    }}"""
+            
             try:
-                span.add_event("Initiating SPARQL Delete Operation")
-                start_time = time.time()
-
-                self.sparql_helper.query(self.sparql_user, self.sparql_pass, self.sparql_server, self.sparql_path_auth,
-                                self.querystring, query)
-
-                execution_time = time.time() - start_time
-
-                span.set_attribute("query", query)
-                span.add_event("SPARQL Delete Operation Done")
-
-                span.set_attribute("execution_time_seconds", execution_time)
+                params = {"uri_id": uri_id, "sector": sector}
+                self.sparql_helper_with_tracing("delete", query, params)
                 span.set_status(StatusCode.OK)
-                #logging.info(f"Successfully deleted old values for sector={sector}, uri_id={uri_id}")
-
+                return True
+                
             except Exception as e:
                 span.record_exception(e)
-                span.set_status(Status(StatusCode.ERROR, "Error during SPARQL delete operation"))
-                logging.exception(f"Error while deleting old values for sector={sector}, uri_id={uri_id}: {e}")
+                span.set_status(Status(StatusCode.ERROR, f"Error deleting old values: {str(e)}"))
+                logger.error(f"Error deleting old values", 
+                            exc_info=True,
+                            extra={"uri_id": uri_id, "sector": sector})
+                return False
 
     def insert_data(self, uri_id, sector, url, crc, title, summary, texto):
-
 
         start_time = time.time()
 
@@ -383,8 +500,23 @@ class Crawler:
             span.set_attribute("title_length", len(title))
             span.set_attribute("summary_length", len(summary))
 
+            query = ""
+            query_final = ""
+
             try:
                 span.add_event("Processing input text")
+
+                def escape_for_sparql(text):
+                    if text is None:
+                        return ""
+                    # Reemplazar comillas simples con escape apropiado para SPARQL
+                    escaped = text.replace("\\", "\\\\").replace("'", "\\'")
+                    # Eliminar caracteres de control que pueden causar problemas
+                    escaped = ''.join(ch for ch in escaped if ord(ch) >= 32 or ch in '\n\r\t')
+                    return escaped
+
+                title_escaped = escape_for_sparql(title)
+                summary_escaped = escape_for_sparql(summary)
 
                 query = "PREFIX schema: <http://schema.org/>   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
                 query = f"{query} PREFIX owl: <http://www.w3.org/2002/07/owl#>  PREFIX recurso: <http://opendata.aragon.es/recurso/{sector}/documento/webpage/> "
@@ -393,9 +525,9 @@ class Crawler:
                 query = f"{query}  recurso:{uri_id} rdf:type schema:CreativeWork . "
                 query = f"{query}  recurso:{uri_id} rdf:type owl:NamedIndividual  . "
                 query = f"{query}  recurso:{uri_id} schema:url  <{url}>  . "
-                query = f"{query}  recurso:{uri_id} schema:title '{title}'  ."
+                query = f"{query}  recurso:{uri_id} schema:title '{title_escaped}'  ."
                 query = f"{query}  recurso:{uri_id} schema:version '{str(crc)}' . "
-                query = f"{query}  recurso:{uri_id} schema:abstract '{summary}' . "
+                query = f"{query}  recurso:{uri_id} schema:abstract '{summary_escaped}' . "
                 query = f"{query}  recurso:{uri_id} schema:concept nti:{sector} . "
                 query = f"{query}  recurso:{uri_id} dcat:theme nti:{sector} . "
                 query = f"{query}  recurso:{uri_id} schema:sdDatePublished   '{datetime.now().strftime('%Y%m%d')}' "
@@ -418,42 +550,51 @@ class Crawler:
 
 
             except Exception as e:
-                logging.exception(f"Error {e} while constructing the SPARQL query: {query}")
+                error_message = f"Error {e} mientras se construía la consulta SPARQL"
+                logger.exception(error_message)
                 span.record_exception(e)
-                span.set_status(Status(StatusCode.ERROR, "Error constructing SPARQL query"))
+                span.set_status(Status(StatusCode.ERROR, "Error construyendo consulta SPARQL"))
+                span.set_attribute("error_details", str(e))
+                span.set_attribute("error_phase", "query_construction")
                 return None
 
             try:
                 span.add_event("Inserting data into Virtuoso")
-                span.set_attribute("query", query)
-                start_time = time.time()
+                query_final = f"{query} }} }}"
 
-                query = f"{query} }} }}"
+                span.set_attribute("sparql_query", query_final)
+                query_start_time = time.time()
                             
-                result = self.sparql_helper.insertdata(
-                    self.sparql_user, self.sparql_pass,
-                    self.sparql_server, self.sparql_path_auth,
-                    self.querystring, query
-                )
+                params = {
+                    "uri_id": uri_id,
+                    "sector": sector,
+                    "url": url,
+                    "title_length": len(title) if title else 0
+                }
+                
+                result = self.sparql_helper_with_tracing("insert", query_final, params)
+                
+                # Incrementar contador de inserciones exitosas por sector
+                self.urls_by_sector.add(1, {"sector": sector, "status": "success"})
 
-                execution_time = time.time() - start_time
-
+                execution_time = time.time() - query_start_time
                 span.set_attribute("execution_time_seconds", execution_time)
+                
+                span.set_attribute("query_success", True)
+                span.set_attribute("result_code", result)
                 span.set_status(StatusCode.OK)
-
+                
+                logger.info(f"SPARQL insert success: uri_id={uri_id}, sector={sector}, time={execution_time:.2f}s")
+                
                 return result
 
             except Exception as e:
-                span.record_exception(e)
-                span.set_status(Status(StatusCode.ERROR, "Error inserting data into Virtuoso"))
-                logging.exception(f"Error {e} while inserting SPARQL data")
+                self.urls_by_sector.add(1, {"sector": sector, "status": "error"})
                 return None
 
             finally:
                 total_elapsed = time.time() - start_time
-
-        #query = f"{query} }} }}"
-        #return (self.sparql_helper.insertdata(self.sparql_user, self.sparql_pass, self.sparql_server, self.sparql_path_auth,self.querystring, query))
+                span.set_attribute("total_processing_time", total_elapsed)
 
     def crawl(self, url):
 
@@ -465,7 +606,8 @@ class Crawler:
             try:
 
                 response = requests.get(url)
-                span.set_attribute("status", response.status_code)
+                span.set_attribute("status_code", response.status_code)
+                span.set_attribute("content_type", response.headers.get('content-type', 'unknown'))
 
                 if response.status_code == 200:
                     
@@ -501,7 +643,9 @@ class Crawler:
                                     if domain == domain_temp:
                                         self.add_url_to_visit(url_temp)
                             except Exception as e:
-                                logging.exception(f"Error while processing URL {url_temp}: {e}")
+                                logger.exception(f"Error while processing URL {url_temp}: {e}")
+                                span.record_exception(e)
+                                span.set_status(Status(StatusCode.ERROR, f"Error while processing URL {url_temp}: {e}"))
                     elif "pdf" in content_type:
                         # calcula el crc para ver si ha cambiado lo que hay en la bd
                         try:
@@ -509,10 +653,12 @@ class Crawler:
                             if int(str(content_length)) < 1024 * 1024:  # solo procesamos los pdf menores de 1MB
                                 new_crc = zlib.crc32(response.content)
                             else:
-                                #logging.info("Archivo pdf descartado")
+                                #logger.info("Archivo pdf descartado")
                                 return
                         except Exception as e:
-                            logging.exception(f"Error while processing PDF content length for URL {url}: {e}")
+                            logger.exception(f"Error while processing PDF content length for URL {url}: {e}")
+                            span.record_exception(e)
+                            span.set_status(Status(StatusCode.ERROR, f"Error while processing PDF content length for URL {url}: {e}"))
                             return
                     else:
                         return
@@ -524,6 +670,7 @@ class Crawler:
                     self.processed += 1
 
                     if has_changed:
+                        span.add_event("Content changed, updating database")
                         # extrae el contenido
                         if "pdf" in content_type:
                             titulo, texto = self.pdf_to_text(response.content)
@@ -534,13 +681,36 @@ class Crawler:
                         summary = re.sub(' +', ' ', summary)  # eliminamos los espacios multiples
                         # borra los datos antiguos
                         
+                        span.add_event("Delete old values started")
                         self.delete_old_values(sector, uri_id)
-                        self.insert_data(uri_id, sector, url, new_crc, titulo, summary, texto)
-                        self.added += 1
+                        span.add_event("Delete old values completed")
+                        
+                        span.add_event("Insert data started")
+                        result = self.insert_data(uri_id, sector, url, new_crc, titulo, summary, texto)
+                        
+                        if result and result == 200:
+                            span.add_event("Insert data completed successfully")
+                            self.added += 1
+                        else:
+                            span.add_event("Insert data failed", {"result_code": result})
+                            span.set_attribute("insert_error", True)
+
+                        self.urls_processed_counter.add(1, {"status": str(response.status_code)})
+        
+                    if has_changed and self.added > 0:
+                        # Incrementar contador de URLs cambiadas
+                        self.urls_changed_counter.add(1, {"sector": sector})
             except Exception as e:
-                logging.exception(f"Error during crawling URL {url}: {e}")
+                error_message = f"Error durante el crawl de URL {url}: {str(e)}"
+                self.sparql_errors_counter.add(1, {"error_type": type(e).__name__})
+                span.record_exception(e)
+                span.set_status(Status(StatusCode.ERROR, error_message))
+                
+                logger.exception(error_message)
             finally:
                 elapsed = time.time() - crawl_start
+                span.set_attribute("duration_seconds", elapsed)
+            self.crawl_duration.record(elapsed, {"url": url[:100]})
                 
     def run(self):
 
@@ -558,21 +728,146 @@ class Crawler:
                     urls_processed_total += 1
                 except Exception:
                     errors_total += 1
-                    logging.exception(f'Failed to crawl: {url}')
+                    logger.exception(f'Failed to crawl: {url}')
                 finally:
                     if url:
                         self.visited_urls.append(url)
             self.endtime = time.time()
 
-            logging.info(f'SUMMARY:  processed: {self.processed}  added:{self.added}')
-            logging.info(f'TIME:  {str(self.endtime - self.starttime)} seconds')
+            logger.info(f'SUMMARY:  processed: {self.processed}  added:{self.added}')
+            logger.info(f'TIME:  {str(self.endtime - self.starttime)} seconds')
 
         except Exception as e:
-            logging.exception("Critical error during crawl execution.")
+            logger.exception("Critical error during crawl execution.")
         finally:
             total_elapsed = time.time() - start_time
 
+    def sparql_helper_with_tracing(self, operation_type, query, params=None):
+        """
+        Ejecuta operaciones SPARQL con trazabilidad mejorada.
+        
+        Args:
+            operation_type: Tipo de operación ('query', 'insert', 'delete')
+            query: Consulta SPARQL
+            params: Parámetros adicionales (opcional)
+        
+        Returns:
+            Resultado de la operación SPARQL
+        """
+        with self.tracer.start_as_current_span(f"SPARQL_{operation_type}") as span:
+            # Atributos comunes
+            span.set_attribute("query", query)
+            
+            # Si tenemos parámetros, los agregamos
+            if params:
+                for key, value in params.items():
+                    span.set_attribute(key, value)
+            
+            start_time = time.time()
+            
+            try:
+                # Ejecutar la operación según su tipo
+                if operation_type == "insert":
+                    result = self.sparql_helper.insertdata(
+                        self.sparql_user, self.sparql_pass,
+                        self.sparql_server, self.sparql_path_auth,
+                        self.querystring, query
+                    )
+                elif operation_type == "query":
+                    result = self.sparql_helper.query(
+                        self.sparql_user, self.sparql_pass,
+                        self.sparql_server, self.sparql_path_auth,
+                        self.querystring, query
+                    )
+                elif operation_type == "delete":
+                    result = self.sparql_helper.query(  # Para delete usamos el método query
+                        self.sparql_user, self.sparql_pass,
+                        self.sparql_server, self.sparql_path_auth,
+                        self.querystring, query
+                    )
+                else:
+                    raise ValueError(f"Tipo de operación SPARQL desconocido: {operation_type}")
+                
+                # Registrar éxito
+                span.set_attribute("success", True)
+                span.set_attribute("result_code", result if isinstance(result, int) else 200)
+                
+                # Métricas para operaciones exitosas
+                query_type_label = {"operation": operation_type}
+                self.sparql_operation_counter.add(1, query_type_label)
+                
+                # Tiempo de ejecución
+                execution_time = time.time() - start_time
+                span.set_attribute("execution_time_seconds", execution_time)
+                self.sparql_operation_duration.record(execution_time, query_type_label)
+                
+                # Log estructurado
+                logger.info(f"SPARQL {operation_type} successful", 
+                            extra={"operation": operation_type, "execution_time": execution_time})
+                
+                return result
+                
+            except Exception as e:
+                error_message = str(e)
+                
+                # Extraer información de errores Virtuoso
+                virtuoso_error_match = re.search(r"Virtuoso (\d+) Error ([A-Z0-9]+): (.+)", error_message)
+                if virtuoso_error_match:
+                    error_code = virtuoso_error_match.group(2)
+                    error_details = virtuoso_error_match.group(3)
+                    
+                    span.set_attribute("virtuoso_error_code", error_code)
+                    span.set_attribute("virtuoso_error_details", error_details)
+                    
+                    # Buscar detalles de errores de sintaxis
+                    syntax_error_match = re.search(r"syntax error at ['\"]([^'\"]+)['\"] before ['\"]([^'\"]+)['\"]", error_details)
+                    if syntax_error_match:
+                        error_at = syntax_error_match.group(1)
+                        error_before = syntax_error_match.group(2)
+                        span.set_attribute("syntax_error_at", error_at)
+                        span.set_attribute("syntax_error_before", error_before)
+                
+                # Registrar error
+                span.record_exception(e)
+                span.set_attribute("success", False)
+                span.set_status(Status(StatusCode.ERROR, error_message))
+                
+                # Métricas para operaciones fallidas
+                error_type = type(e).__name__
+                error_labels = {"operation": operation_type, "error_type": error_type}
+                self.sparql_error_counter.add(1, error_labels)
+                
+                # Log estructurado
+                logger.error(f"SPARQL {operation_type} failed: {error_message}", 
+                            exc_info=True,
+                            extra={"operation": operation_type, "error_type": error_type})
+                
+                # Guardar consulta fallida para diagnóstico
+                self._save_failed_query(query, error_message, params)
+                
+                # Re-lanzar la excepción para manejo adicional
+                raise
 
+    def _save_failed_query(self, query, error_message, params=None):
+        """Guarda una consulta SPARQL fallida para diagnóstico posterior"""
+        try:
+            error_log_dir = "sparql_error_logs"
+            os.makedirs(error_log_dir, exist_ok=True)
+            
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{error_log_dir}/error_{timestamp}.sparql"
+            
+            with open(filename, "w") as f:
+                f.write(f"# Error: {error_message}\n")
+                if params:
+                    f.write(f"# Parameters: {json.dumps(params)}\n")
+                f.write("\n# Query:\n")
+                f.write(query)
+            
+            logger.info(f"Failed SPARQL query saved to {filename}")
+            
+        except Exception as e:
+            logger.error(f"Could not save failed SPARQL query: {e}")
 if __name__ == '__main__':
     Crawler().run()
 

@@ -31,35 +31,36 @@ class OpenTelemetryConfig:
 
         # -- TRACES --
         tracer_provider = TracerProvider(resource=resource)
-        # Crea el exporter OTLP (gRPC) apuntando al endpoint del APM Server
-        trace_exporter = OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True)
-        #span_processor = BatchSpanProcessor(trace_exporter)
+        
         span_processor = BatchSpanProcessor(
             OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True),
-            max_queue_size=8192,          # Buffer más grande (default=2048)
-            schedule_delay_millis=20000,  # Enviar cada 10 segundos (default=5000)
-            max_export_batch_size=512,    # Lotes más pequeños (default=512)
-            export_timeout_millis=30000,  # Tiempo de espera extendido
+            max_queue_size=8192,
+            schedule_delay_millis=20000,
+            max_export_batch_size=512,
+            export_timeout_millis=30000,
         )
         tracer_provider.add_span_processor(span_processor)
         
-        # Registrar como tracer por defecto
         trace.set_tracer_provider(tracer_provider)
         OpenTelemetryConfig.tracer_provider = tracer_provider
         OpenTelemetryConfig.tracer = tracer_provider.get_tracer(service_name)
 
         # -- METRICS --
-        # Crea un exporter OTLP (gRPC) para métricas
-        # metric_exporter = OTLPMetricExporter(endpoint=otlp_endpoint, insecure=True)
-        #metric_reader = PeriodicExportingMetricReader(metric_exporter)
-        # metric_reader = PeriodicExportingMetricReader(
-        #     OTLPMetricExporter(endpoint=otlp_endpoint, insecure=True),
-        #     export_interval_millis=15000,  # Enviar cada 15 segundos (default=60000)
-        # )
-        # meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
+        metric_exporter = OTLPMetricExporter(endpoint=otlp_endpoint, insecure=True)
+        metric_reader = PeriodicExportingMetricReader(
+            metric_exporter,
+            export_interval_millis=15000,  # Enviar cada 15 segundos
+        )
+        meter_provider = MeterProvider(
+            resource=resource, 
+            metric_readers=[metric_reader]
+        )
         
-        # metrics.set_meter_provider(meter_provider)
-        # OpenTelemetryConfig.meter_provider = meter_provider
+        metrics.set_meter_provider(meter_provider)
+        OpenTelemetryConfig.meter_provider = meter_provider
+
+        # Instrumentación automática de requests
+        RequestsInstrumentor().instrument()
 
     @staticmethod
     def get_tracer():
