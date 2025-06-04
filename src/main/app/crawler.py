@@ -162,6 +162,18 @@ class Crawler:
             description="Número de URLs procesadas por sector",
             unit="1"
         )
+        
+        self.session = requests.Session()
+        self.session.max_redirects = 10
+        self.session.timeout = 30
+
+        self.session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive'
+        })
 
         self.load_urls(cfg.urlsfile)
         self.depth = cfg.depth
@@ -237,7 +249,50 @@ class Crawler:
         # self.maps.append(self.sparql_helper.query_get(self.sparql_server,self.sparql_path+self.querystring,query3,2))
         # self.maps.append(self.sparql_helper.query_get(self.sparql_server,self.sparql_path+self.querystring,query4,1))
 
-    #@staticmethod
+    def escape_sparql_string(self, text):
+        """
+        Escapa caracteres especiales para strings en SPARQL
+        """
+        if text is None:
+            return ""
+        
+        # Convertir a string si no lo es
+        text = str(text)
+        
+        # Escapar caracteres especiales
+        text = text.replace("\\", "\\\\")  # Escapar backslashes primero
+        text = text.replace("'", "\\'")   # Escapar comillas simples
+        text = text.replace('"', '\\"')   # Escapar comillas dobles
+        text = text.replace("\n", "\\n")  # Escapar saltos de línea
+        text = text.replace("\r", "\\r")  # Escapar retornos de carro
+        text = text.replace("\t", "\\t")  # Escapar tabulaciones
+        
+        # Eliminar caracteres de control adicionales
+        text = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', text)
+        
+        return text
+
+    def clean_text_for_sparql(self, text):
+        """
+        Limpia texto para uso seguro en SPARQL
+        """
+        if text is None:
+            return ""
+        
+        text = str(text).strip()
+        
+        # Normalizar espacios en blanco
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Eliminar caracteres problemáticos
+        text = re.sub(r'[^\w\s\-.,;:!?()áéíóúüñÁÉÍÓÚÜÑ]', ' ', text)
+        
+        # Limitar longitud
+        if len(text) > 1000:
+            text = text[:997] + "..."
+        
+        return self.escape_sparql_string(text)
+
     def get_linked_urls(self, url, soup):
         start_time = time.time()
         try:
@@ -285,12 +340,13 @@ class Crawler:
 
     def clean_html(self, soup):
         try:
-
             tit = soup.find('title')
-
             title = ""
             if tit is not None:
-                title = tit.string
+                title = tit.get_text().strip()
+                # Limpiar el título
+                title = re.sub(r'\s+', ' ', title)
+                title = title[:200] if len(title) > 200 else title  # Limitar longitud
                 tit.decompose()
 
             tags = ["footer", "header", "nav", "form", "style", "meta", "script"]
@@ -299,23 +355,26 @@ class Crawler:
                     div.decompose()
 
             attrs = ["class", "id"]
-            tags = ["footer", "Footer", "nav", "Nav", "banner", "Banner", "box", "Box", "pie", "Pie", "rightBlock", "menu",
-                    "block-menu"]
+            tags = ["footer", "Footer", "nav", "Nav", "banner", "Banner", "box", "Box", "pie", "Pie", "rightBlock", "menu", "block-menu"]
             self._remove_divs(soup, attrs, tags)
 
             for x in soup.find_all("p"):
                 text = x.get_text()
-                if len(text.split(" ")) < 5 or "cookies" in text:
+                if len(text.split(" ")) < 5 or "cookies" in text.lower():
                     x.decompose()
 
             texto = '. '.join(soup.stripped_strings)
             texto = texto.replace("..", ".")
+            
+            # Limpiar texto
+            texto = re.sub(r'\s+', ' ', texto)
+            texto = texto.strip()
 
             return title, texto
 
         except Exception as e:
-            logger.exception("Error during HTML cleaning")
-            return None, None
+            logging.exception("Error during HTML cleaning")
+            return "", ""
 
     def build_uri_id(self, url):
 
@@ -488,8 +547,21 @@ class Crawler:
                             extra={"uri_id": uri_id, "sector": sector})
                 return False
 
-    def insert_data(self, uri_id, sector, url, crc, title, summary, texto):
+    def safe_set_span_attribute(self, span, attribute_name, value):
+        """
+        Establece un atributo de span de forma segura, manejando valores None
+        """
+        if value is None:
+            value = ""
+        elif not isinstance(value, (str, int, float, bool)):
+            value = str(value)
+        
+        try:
+            span.set_attribute(attribute_name, value)
+        except Exception as e:
+            logging.warning(f"Could not set span attribute {attribute_name}: {e}")
 
+    def insert_data(self, uri_id, sector, url, crc, title, summary, texto):
         start_time = time.time()
 
         with self.tracer.start_as_current_span("Insert SPARQL Data") as span:
@@ -497,271 +569,238 @@ class Crawler:
             span.set_attribute("sector", sector)
             span.set_attribute("url", url)
             span.set_attribute("crc", crc)
-            span.set_attribute("title_length", len(title))
-            span.set_attribute("summary_length", len(summary))
-
-            query = ""
-            query_final = ""
+            
+            # Verificar y limpiar inputs
+            if title is None:
+                title = ""
+            if summary is None:
+                summary = ""
+            if texto is None:
+                texto = ""
+                
+            # Limpiar los textos para SPARQL
+            clean_title = self.clean_text_for_sparql(title)
+            clean_summary = self.clean_text_for_sparql(summary)
+            clean_texto = self.clean_text_for_sparql(texto)
+            
+            # NUEVA LÍNEA: Limpiar la URL para eliminar saltos de línea y espacios
+            clean_url = url.strip().replace('\n', '').replace('\r', '').replace('\t', '')
+            
+            span.set_attribute("title_length", len(clean_title))
+            span.set_attribute("summary_length", len(clean_summary))
 
             try:
                 span.add_event("Processing input text")
 
-                def escape_for_sparql(text):
-                    if text is None:
-                        return ""
-                    # Reemplazar comillas simples con escape apropiado para SPARQL
-                    escaped = text.replace("\\", "\\\\").replace("'", "\\'")
-                    # Eliminar caracteres de control que pueden causar problemas
-                    escaped = ''.join(ch for ch in escaped if ord(ch) >= 32 or ch in '\n\r\t')
-                    return escaped
+                # Construir la query con strings seguros
+                query_parts = [
+                    "PREFIX schema: <http://schema.org/>",
+                    "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>",
+                    "PREFIX owl: <http://www.w3.org/2002/07/owl#>",
+                    f"PREFIX recurso: <http://opendata.aragon.es/recurso/{sector}/documento/webpage/>",
+                    "PREFIX nti: <http://datos.gob.es/kos/sector-publico/sector/>",
+                    "PREFIX dcat: <http://www.w3.org/ns/dcat#>",
+                    "INSERT DATA { GRAPH <http://opendata.aragon.es/def/ei2av2> {",
+                    f"  recurso:{uri_id} rdf:type schema:CreativeWork .",
+                    f"  recurso:{uri_id} rdf:type owl:NamedIndividual .",
+                    f"  recurso:{uri_id} schema:url <{clean_url}> .",  # USAR URL LIMPIA
+                    f"  recurso:{uri_id} schema:title '{clean_title}' .",
+                    f"  recurso:{uri_id} schema:version '{str(crc)}' .",
+                    f"  recurso:{uri_id} schema:abstract '{clean_summary}' .",
+                    f"  recurso:{uri_id} schema:concept nti:{sector} .",
+                    f"  recurso:{uri_id} dcat:theme nti:{sector} .",
+                    f"  recurso:{uri_id} schema:sdDatePublished '{datetime.now().strftime('%Y%m%d')}'"
+                ]
 
-                title_escaped = escape_for_sparql(title)
-                summary_escaped = escape_for_sparql(summary)
-
-                query = "PREFIX schema: <http://schema.org/>   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-                query = f"{query} PREFIX owl: <http://www.w3.org/2002/07/owl#>  PREFIX recurso: <http://opendata.aragon.es/recurso/{sector}/documento/webpage/> "
-                query = f"{query} PREFIX nti: <http://datos.gob.es/kos/sector-publico/sector/> PREFIX dcat: <http://www.w3.org/ns/dcat#> "
-                query = f"{query} INSERT DATA {{ GRAPH <http://opendata.aragon.es/def/ei2av2> {{ "
-                query = f"{query}  recurso:{uri_id} rdf:type schema:CreativeWork . "
-                query = f"{query}  recurso:{uri_id} rdf:type owl:NamedIndividual  . "
-                query = f"{query}  recurso:{uri_id} schema:url  <{url}>  . "
-                query = f"{query}  recurso:{uri_id} schema:title '{title_escaped}'  ."
-                query = f"{query}  recurso:{uri_id} schema:version '{str(crc)}' . "
-                query = f"{query}  recurso:{uri_id} schema:abstract '{summary_escaped}' . "
-                query = f"{query}  recurso:{uri_id} schema:concept nti:{sector} . "
-                query = f"{query}  recurso:{uri_id} dcat:theme nti:{sector} . "
-                query = f"{query}  recurso:{uri_id} schema:sdDatePublished   '{datetime.now().strftime('%Y%m%d')}' "
-
-                textosinacentos = sparqlhelper.eliminar_acentos(texto)
+                # Procesar entidades encontradas en el texto
+                textosinacentos = sparqlhelper.eliminar_acentos(clean_texto)
                 textosinespaciosmultiples = str(re.sub(' +', ' ', textosinacentos))
                 added_ids = set()
 
                 for map in self.maps:
                     for key in map:
                         if key in textosinespaciosmultiples:
-                            pattern = r'\b' + key + r'\b'
+                            pattern = r'\b' + re.escape(key) + r'\b'
                             match = re.search(pattern, textosinespaciosmultiples.replace(".", " "))
                             if match is not None and map[key] not in added_ids:
-                                # no incluir duplicados de uris iguales que puedan tener distinto nombre
                                 added_ids.add(map[key])
-                                query = f"{query} . recurso:{uri_id} schema:about <{map[key]}> "
+                                query_parts.append(f"  . recurso:{uri_id} schema:about <{map[key]}>")
+
+                query_parts.append("} }")
+                query = " ".join(query_parts)
 
                 span.add_event("SPARQL Query Constructed", {"query_length": len(query)})
 
-
             except Exception as e:
-                error_message = f"Error {e} mientras se construía la consulta SPARQL"
-                logger.exception(error_message)
+                logging.exception(f"Error constructing SPARQL query: {e}")
                 span.record_exception(e)
-                span.set_status(Status(StatusCode.ERROR, "Error construyendo consulta SPARQL"))
-                span.set_attribute("error_details", str(e))
-                span.set_attribute("error_phase", "query_construction")
+                span.set_status(Status(StatusCode.ERROR, "Error constructing SPARQL query"))
                 return None
 
             try:
                 span.add_event("Inserting data into Virtuoso")
-                query_final = f"{query} }} }}"
-
-                span.set_attribute("sparql_query", query_final)
-                query_start_time = time.time()
-                            
-                params = {
-                    "uri_id": uri_id,
-                    "sector": sector,
-                    "url": url,
-                    "title_length": len(title) if title else 0
-                }
+                span.set_attribute("query", query)
                 
-                result = self.sparql_helper_with_tracing("insert", query_final, params)
-                
-                # Incrementar contador de inserciones exitosas por sector
-                self.urls_by_sector.add(1, {"sector": sector, "status": "success"})
+                result = self.sparql_helper.insertdata(
+                    self.sparql_user, self.sparql_pass,
+                    self.sparql_server, self.sparql_path_auth,
+                    self.querystring, query
+                )
 
-                execution_time = time.time() - query_start_time
+                execution_time = time.time() - start_time
                 span.set_attribute("execution_time_seconds", execution_time)
-                
-                span.set_attribute("query_success", True)
-                span.set_attribute("result_code", result)
                 span.set_status(StatusCode.OK)
-                
-                logger.info(f"SPARQL insert success: uri_id={uri_id}, sector={sector}, time={execution_time:.2f}s")
-                
+
                 return result
 
             except Exception as e:
-                self.urls_by_sector.add(1, {"sector": sector, "status": "error"})
+                span.record_exception(e)
+                span.set_status(Status(StatusCode.ERROR, "Error inserting data into Virtuoso"))
+                logging.exception(f"Error inserting SPARQL data: {e}")
                 return None
 
             finally:
                 total_elapsed = time.time() - start_time
-                span.set_attribute("total_processing_time", total_elapsed)
 
     def crawl(self, url):
-
         crawl_start = time.time()
 
         with self.tracer.start_as_current_span(f'Crawl {url}') as span:
             span.set_attribute("url", url)
 
             try:
+                response = self.session.get(url, timeout=30, allow_redirects=True)
+                span.set_attribute("status", response.status_code)
 
-                response = requests.get(url)
-                span.set_attribute("status_code", response.status_code)
-                span.set_attribute("content_type", response.headers.get('content-type', 'unknown'))
+                if response.url != url:
+                    self.safe_set_span_attribute(span, "final_url", response.url)
+                    logging.info(f"URL redirected from {url} to {response.url}")
 
                 if response.status_code == 200:
-                    
                     headers = response.headers
-
                     uri_id, sector = self.build_uri_id(url)
-                    span.set_attribute("uri_id", uri_id)
-                    span.set_attribute("sector", sector)
+                    
+                    self.safe_set_span_attribute(span, "uri_id", uri_id)
+                    self.safe_set_span_attribute(span, "sector", sector)
 
-                    content_type = str(headers['content-type'])
+                    content_type = str(headers.get('content-type', ''))
                     has_changed = True
                     new_crc = 0
                     titulo = ""
                     texto = ""
-                    domain = urlparse(url).netloc
-                    domain = domain.replace("www.", "")
-                    raw_text = ""
-                    if "text" in content_type:  # aunque se descartan ciertas extensiones pueden venir datos en formatos no deseados
+                    domain = urlparse(url).netloc.replace("www.", "")
+                    
+                    if "text" in content_type:
                         raw_text = response.text
                         soup = BeautifulSoup(raw_text, 'html.parser')
                         titulo, texto = self.clean_html(soup)
                         
-                        span.set_attribute("titulo", titulo)
-                        span.set_attribute("texto", texto)
+                        # Asegurar que titulo y texto no sean None
+                        titulo = titulo if titulo is not None else ""
+                        texto = texto if texto is not None else ""
+                        
+                        self.safe_set_span_attribute(span, "titulo", titulo)
+                        self.safe_set_span_attribute(span, "texto_length", len(texto))
 
                         new_crc = zlib.crc32(texto.encode('utf-8'))
-                        # si no es pdf busca los enlaces y los añadimos a la lista de url a procesar
+                        
+                        # Procesar enlaces
                         for url_temp in self.get_linked_urls(url, soup):
                             try:
                                 if url_temp is not None and domain in url_temp:
-                                    domain_temp = urlparse(url_temp).netloc
-                                    domain_temp = domain_temp.replace("www.", "")
+                                    domain_temp = urlparse(url_temp).netloc.replace("www.", "")
                                     if domain == domain_temp:
                                         self.add_url_to_visit(url_temp)
                             except Exception as e:
-                                logger.exception(f"Error while processing URL {url_temp}: {e}")
-                                span.record_exception(e)
-                                span.set_status(Status(StatusCode.ERROR, f"Error while processing URL {url_temp}: {e}"))
+                                logging.exception(f"Error processing URL {url_temp}: {e}")
+                                
                     elif "pdf" in content_type:
-                        # calcula el crc para ver si ha cambiado lo que hay en la bd
                         try:
-                            content_length = str(headers['content-length'])
-                            if int(str(content_length)) < 1024 * 1024:  # solo procesamos los pdf menores de 1MB
+                            content_length = headers.get('content-length', '0')
+                            if int(content_length) < 1024 * 1024:  # solo procesamos PDFs < 1MB
                                 new_crc = zlib.crc32(response.content)
                             else:
-                                #logger.info("Archivo pdf descartado")
                                 return
                         except Exception as e:
-                            logger.exception(f"Error while processing PDF content length for URL {url}: {e}")
-                            span.record_exception(e)
-                            span.set_status(Status(StatusCode.ERROR, f"Error while processing PDF content length for URL {url}: {e}"))
+                            logging.exception(f"Error processing PDF content length for URL {url}: {e}")
                             return
                     else:
                         return
-                    # comprueba en la bd si ha habido cambios
-                    # si no existe se devuelve true 
+                    
+                    # Verificar cambios
                     has_changed = self.check_webpage_changes(new_crc, sector, uri_id)
-                    span.set_attribute("has_changed", has_changed)
+                    self.safe_set_span_attribute(span, "has_changed", has_changed)
 
                     self.processed += 1
 
                     if has_changed:
-                        span.add_event("Content changed, updating database")
-                        # extrae el contenido
                         if "pdf" in content_type:
                             titulo, texto = self.pdf_to_text(response.content)
+                            # Asegurar que no sean None
+                            titulo = titulo if titulo is not None else ""
+                            texto = texto if texto is not None else ""
 
-                            # resume el contenido
                         summary = self.summarize_text(texto)
-                        summary = summary.replace("\n", " ")
-                        summary = re.sub(' +', ' ', summary)  # eliminamos los espacios multiples
-                        # borra los datos antiguos
+                        summary = summary.replace("\n", " ") if summary else ""
+                        summary = re.sub(' +', ' ', summary)
                         
-                        span.add_event("Delete old values started")
                         self.delete_old_values(sector, uri_id)
-                        span.add_event("Delete old values completed")
-                        
-                        span.add_event("Insert data started")
-                        result = self.insert_data(uri_id, sector, url, new_crc, titulo, summary, texto)
-                        
-                        if result and result == 200:
-                            span.add_event("Insert data completed successfully")
-                            self.added += 1
-                        else:
-                            span.add_event("Insert data failed", {"result_code": result})
-                            span.set_attribute("insert_error", True)
-
-                        self.urls_processed_counter.add(1, {"status": str(response.status_code)})
-        
-                    if has_changed and self.added > 0:
-                        # Incrementar contador de URLs cambiadas
-                        self.urls_changed_counter.add(1, {"sector": sector})
+                        self.insert_data(uri_id, sector, url, new_crc, titulo, summary, texto)
+                        self.added += 1
+                    pass
+                else:
+                    logging.warning(f"HTTP {response.status_code} for URL: {url}")
+                    return
+            except requests.exceptions.TooManyRedirects:
+                logging.warning(f"Too many redirects for URL: {url}")
+                span.set_attribute("error", "too_many_redirects")
+                # Marcar URL como no visitable
+                self.no_visit.append(url)
+                return
+            except requests.exceptions.Timeout:
+                logging.warning(f"Timeout for URL: {url}")
+                span.set_attribute("error", "timeout")
+                return
+            except requests.exceptions.ConnectionError:
+                logging.warning(f"Connection error for URL: {url}")
+                span.set_attribute("error", "connection_error")
+                return
             except Exception as e:
-                error_message = f"Error durante el crawl de URL {url}: {str(e)}"
-                self.sparql_errors_counter.add(1, {"error_type": type(e).__name__})
+                logging.exception(f"Error crawling URL {url}: {e}")
                 span.record_exception(e)
-                span.set_status(Status(StatusCode.ERROR, error_message))
-                
-                logger.exception(error_message)
+                return
             finally:
                 elapsed = time.time() - crawl_start
-                span.set_attribute("duration_seconds", elapsed)
-            self.crawl_duration.record(elapsed, {"url": url[:100]})
-                
-    def run(self):
+                self.safe_set_span_attribute(span, "crawl_time", elapsed)
 
-        start_time = time.time()
-
-        errors_total = 0
-        urls_processed_total = 0 
-
-                
+    def _check_sparql_connectivity(self):
+        """
+        Verifica la conectividad básica con el servidor SPARQL
+        """
         try:
-            while self.urls_to_visit:
-                try:
-                    url = self.urls_to_visit.pop(0)
-                    self.crawl(url)
-                    urls_processed_total += 1
-                except Exception:
-                    errors_total += 1
-                    logger.exception(f'Failed to crawl: {url}')
-                finally:
-                    if url:
-                        self.visited_urls.append(url)
-            self.endtime = time.time()
-
-            logger.info(f'SUMMARY:  processed: {self.processed}  added:{self.added}')
-            logger.info(f'TIME:  {str(self.endtime - self.starttime)} seconds')
-
+            simple_query = "SELECT ?s WHERE { ?s ?p ?o } LIMIT 1"
+            result = self.sparql_helper.query(
+                self.sparql_user, self.sparql_pass,
+                self.sparql_server, self.sparql_path_auth,
+                self.querystring, simple_query
+            )
+            return result is not None and "results" in result
         except Exception as e:
-            logger.exception("Critical error during crawl execution.")
-        finally:
-            total_elapsed = time.time() - start_time
+            logger.error(f"Connectivity check failed: {e}")
+            return False
 
     def sparql_helper_with_tracing(self, operation_type, query, params=None):
         """
-        Ejecuta operaciones SPARQL con trazabilidad mejorada.
-        
-        Args:
-            operation_type: Tipo de operación ('query', 'insert', 'delete')
-            query: Consulta SPARQL
-            params: Parámetros adicionales (opcional)
-        
-        Returns:
-            Resultado de la operación SPARQL
+        Ejecuta operaciones SPARQL con trazabilidad mejorada y manejo robusto de errores.
         """
         with self.tracer.start_as_current_span(f"SPARQL_{operation_type}") as span:
             # Atributos comunes
-            span.set_attribute("query", query)
+            span.set_attribute("query", query[:500] if len(query) > 500 else query)  # Limitar tamaño
             
             # Si tenemos parámetros, los agregamos
             if params:
                 for key, value in params.items():
-                    span.set_attribute(key, value)
+                    span.set_attribute(key, str(value)[:100])  # Limitar tamaño
             
             start_time = time.time()
             
@@ -780,7 +819,7 @@ class Crawler:
                         self.querystring, query
                     )
                 elif operation_type == "delete":
-                    result = self.sparql_helper.query(  # Para delete usamos el método query
+                    result = self.sparql_helper.query(
                         self.sparql_user, self.sparql_pass,
                         self.sparql_server, self.sparql_path_auth,
                         self.querystring, query
@@ -817,7 +856,7 @@ class Crawler:
                     error_details = virtuoso_error_match.group(3)
                     
                     span.set_attribute("virtuoso_error_code", error_code)
-                    span.set_attribute("virtuoso_error_details", error_details)
+                    span.set_attribute("virtuoso_error_details", error_details[:200])  # Limitar tamaño
                     
                     # Buscar detalles de errores de sintaxis
                     syntax_error_match = re.search(r"syntax error at ['\"]([^'\"]+)['\"] before ['\"]([^'\"]+)['\"]", error_details)
@@ -845,8 +884,11 @@ class Crawler:
                 # Guardar consulta fallida para diagnóstico
                 self._save_failed_query(query, error_message, params)
                 
-                # Re-lanzar la excepción para manejo adicional
-                raise
+                # En lugar de re-lanzar la excepción, retornar valores por defecto
+                if operation_type == "query":
+                    return {"results": {"bindings": []}}
+                else:
+                    return 500
 
     def _save_failed_query(self, query, error_message, params=None):
         """Guarda una consulta SPARQL fallida para diagnóstico posterior"""
@@ -868,6 +910,68 @@ class Crawler:
             
         except Exception as e:
             logger.error(f"Could not save failed SPARQL query: {e}")
+
+    def run(self):
+        """
+        Método run mejorado con mejor manejo de errores y shutdown correcto
+        """
+        start_time = time.time()
+        
+        errors_total = 0
+        urls_processed_total = 0
+        consecutive_errors = 0
+        max_consecutive_errors = 10  # Límite de errores consecutivos
+        
+        try:
+            while self.urls_to_visit:
+                url = None
+                try:
+                    url = self.urls_to_visit.pop(0)
+                    self.crawl(url)
+                    urls_processed_total += 1
+                    consecutive_errors = 0  # Reset contador de errores consecutivos
+                    
+                    # Pequeña pausa para no sobrecargar el servidor
+                    time.sleep(0.1)
+                    
+                except Exception as e:
+                    errors_total += 1
+                    consecutive_errors += 1
+                    logger.exception(f'Failed to crawl: {url}')
+                    
+                    # Si hay muchos errores consecutivos, hacer una pausa más larga
+                    if consecutive_errors >= max_consecutive_errors:
+                        logger.warning(f"Too many consecutive errors ({consecutive_errors}). Pausing for recovery...")
+                        time.sleep(30)  # Pausa de 30 segundos
+                        consecutive_errors = 0
+                        
+                        # Verificar conectividad básica
+                        if not self._check_sparql_connectivity():
+                            logger.error("SPARQL server appears to be down. Stopping crawler.")
+                            break
+                            
+                finally:
+                    if url:
+                        self.visited_urls.append(url)
+                        
+            self.endtime = time.time()
+            
+            logger.info(f'SUMMARY: processed: {self.processed} added: {self.added} errors: {errors_total}')
+            logger.info(f'TIME: {str(self.endtime - self.starttime)} seconds')
+            
+        except Exception as e:
+            logger.exception("Critical error during crawl execution.")
+        finally:
+            total_elapsed = time.time() - start_time
+            logger.info(f"Total execution time: {total_elapsed} seconds")
+            
+            # Cerrar correctamente OpenTelemetry
+            try:
+                from opentelemetry_config import OpenTelemetryConfig
+                OpenTelemetryConfig.shutdown()
+            except Exception as e:
+                logger.error(f"Error during OpenTelemetry shutdown: {e}")
+            
 if __name__ == '__main__':
     Crawler().run()
 
